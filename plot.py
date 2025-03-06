@@ -57,4 +57,23 @@ class HysteresisPlot:
 
         return points
 
+    def get_plot(self) -> Dict[str, List[float]]:
+        """returns a dictionary with keys diplacement and moment
+        where their value is a list of points"""
+
+        data = {
+            "Displacement": [],
+            "Moment": []
+        }
+
+        for cycle in range(1, self.cycle_number+1):
+
+            data["Displacement"] += [ point[0] for point in self.get_cycle(cycle)]
+            data["Moment"] += [ point[1] for point in self.get_cycle(cycle)]
+
+        return data
+            
+
+
+
 

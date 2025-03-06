@@ -1,78 +1,98 @@
-from openseespy.opensees import uniaxialMaterial
+from opensees import Pinching4Model
 
 from plot import HysteresisPlot
 from data import parameters as params 
 import random
 from genetic import Chromosome, FitnessFunction, Parameter, Population
-from typing import Dict 
+from typing import Dict, List 
 
 class SelectionFunction(FitnessFunction):
 
-    def get_ranking(self, chromosome: Chromosome) -> float:
+    def __init__(self, target_plot: HysteresisPlot):
 
+        self.target_plot = target_plot
+
+    def get_ranking(self, chromosome: Chromosome) -> float:
         """returns the ranking of how close a chromosome
         fits the target plot. The better it fits, higher
         the ranking value""" 
 
-        func = lambda key: chromosome.get_parameter(key).value
+        pinching4 = Pinching4Model(chromosome)
+        
+        ranking = self.calculate_ranking(pinching4.get_displacement(), pinching4.get_moment())
+        
+        return ranking
 
-        self.model = uniaxialMaterial('Pinching4', 100, 
-                         func("ePf1"), func("ePd1"), func("ePf2"), func("ePd2"), func("ePf3"), func("ePd3"), func("ePf4"), func("ePd4"), 
-                         func("eNf1"), func("eNd1"), func("eNf2"), func("eNd2"), func("eNf3"), func("eNd3"), func("eNf4"), func("eNd4"),
-                         func("rDispP"), func("rForceP"), func("uForceP"),
-                         func("rDispN"), func("rForceN"), func("uForceN"),
-                         func("gK1"), func("gK2"), func("gK3"), func("gK4"), func("gKLim"),
-                         func("gD1"), func("gD2"), func("gD3"), func("gD4"), func("gDLim"),
-                         func("gF1"), func("gF2"), func("gF3"), func("gF4"), func("gFLim"),
-                         func("gE"), "cycle") 
+    def calculate_ranking(self, disp: List, force: List) -> float:
+        
+        target_data = self.target_plot.get_plot()
+        
+        # number of points is taken from the plot with the least number of points
+        points_num = len(disp) if len(disp) <= len(target_data["Displacement"]) else len(target_data["Displacement"])
 
-        return 0
+        numerator = 0
+        denominator = 0
+        for i in range(points_num):
+            numerator += target_data["Moment"][i] - force[i]
+            denominator += target_data["Moment"][i]
 
-
+        return (numerator/denominator)
 
 class OptimizationModel:
-
     """A model based on the Genetic Algortihm. 
     Used to find the parameters required to
     fit a pinching4 hysteresis curve"""
 
     def __init__(self, target_plot: HysteresisPlot, 
-                 population_size: int, generations: int,
-                 fitness_function: FitnessFunction):
+                 population_size: int, generations: int):
+
+        print(f"Initializing a model with populations size:{population_size} and {generations} generations")
 
         self.target_plot = target_plot
         self.population_size = population_size
         self.generations = generations
-        self.fitness_function = fitness_function
+        self.fitness_function: FitnessFunction
         self.population: Population
         self.parameters: Dict[str, Parameter]
 
         self.isLoaded = False
         
     def load(self):
-
         """load the model"""
+        print("Model loading...")
 
+        self.fitness_function = SelectionFunction(self.target_plot)
         self.parameters = params
         self.population = self.initPopulation(Population())
         self.population.sort(self.selection)
 
         self.isLoaded = True
 
-    def run(self):
+        print("Done loading")
 
+    def run(self):
         """run the algorithm"""
 
+        print("Model running...")
+
         if self.isLoaded:
-            for _ in range(self.generations):
+            for generation in range(self.generations):
                 parent1 = self.population.get_chromosome(0)
                 parent2 = self.population.get_chromosome(1)
                 self.crossover(parent1, parent2)
                 self.population.sort(self.selection)
+                print(f"Generation number:{generation+1} done...")
+
+            print("Done running. Now plotting solution")
+
+            #plot the best matching chromosome
+            solution = self.population.get_chromosome(0)
+            Pinching4Model(solution, plotting=True)
+
+            self.isLoaded = False
 
         else:
             raise Exception("Load the model before running: OptimizationModel.load()")
-
 
     def initChromosome(self, chromosome: Chromosome) -> Chromosome:
 
@@ -128,7 +148,7 @@ class OptimizationModel:
         for parameter in child:
 
             param_value = child.get_parameter(parameter).value 
-            value = param_value + random.uniform(-0.05*param_value, 0.05*param_value)
+            value = param_value + random.uniform(-0.1*param_value, 0.1*param_value)
             child.change_parameter_value(parameter, value)
         
     def selection(self, chromosome: Chromosome):
