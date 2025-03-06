@@ -3,4 +3,5 @@
 ./graph
 ./image.png
 ./__pycache__
+./src/__pycache__
 
