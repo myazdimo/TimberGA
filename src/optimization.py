@@ -1,4 +1,5 @@
 from opensees import Pinching4Model
+import matplotlib.pyplot as plt
 
 from plot import HysteresisPlot
 from data import parameters as params 
@@ -20,7 +21,7 @@ class SelectionFunction(FitnessFunction):
         pinching4 = Pinching4Model(chromosome)
         
         ranking = self.calculate_ranking(pinching4.get_displacement(), pinching4.get_moment())
-        
+
         return ranking
 
     def calculate_ranking(self, disp: List, force: List) -> float:
