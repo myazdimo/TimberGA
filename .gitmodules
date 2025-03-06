@@ -1,0 +1,3 @@
+[submodule "geatpy"]
+	path = geatpy
+	url = https://github.com/geatpy-dev/geatpy
