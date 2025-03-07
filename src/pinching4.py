@@ -144,7 +144,7 @@ def openseesModel(parse, plotting):
 
     uniaxialMaterial('Pinching4', 100, 
                         parse("ePf1"), parse("ePd1"), parse("ePf2"), parse("ePd2"), parse("ePf3"), parse("ePd3"), parse("ePf4"), parse("ePd4"), 
-                        parse("eNf1"), parse("eNd1"), parse("eNf2"), parse("eNd2"), parse("eNf3"), parse("eNd3"), parse("eNf4"), parse("eNd4"),
+                        -(parse("ePf1")), -(parse("ePd1")), -(parse("ePf2")), -(parse("ePd2")), -(parse("ePf3")), -(parse("ePd3")), -(parse("ePf4")), -(parse("ePd4")),
                         parse("rDispP"), parse("fFoceP"), parse("uForceP"),
                         parse("rDispN"), parse("fFoceN"), parse("uForceN"),
                         parse("gK1"), parse("gK2"), parse("gK3"), parse("gK4"), parse("gKLim"),

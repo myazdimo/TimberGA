@@ -5,8 +5,14 @@ from typing import Callable, Iterator, List, Dict
 class Parameter:
     """Restrictions and value associated with a parameter"""
 
-    def __init__(self, value: float, lower_bound: float, upper_bound: float):
-        self.value = value
+    def __init__(self, nature: str, lower_bound: float, upper_bound: float):
+
+        self.value = 0
+        self.nature = nature
+
+        if self.nature not in ["variable", "constant"]:
+            raise ValueError(f"{self.nature} nature is not allowed. Only 'variable' or 'constant'")
+
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 

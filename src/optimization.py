@@ -88,6 +88,7 @@ class OptimizationModel:
 
             #plot the best matching chromosome
             solution = self.population.get_chromosome(0)
+            self.target_plot.plot()
             Pinching4Model(solution, plotting=True)
 
             self.isLoaded = False
@@ -149,7 +150,7 @@ class OptimizationModel:
         for parameter in child:
 
             param_value = child.get_parameter(parameter).value 
-            value = param_value + random.uniform(-0.1*param_value, 0.1*param_value)
+            value = param_value + random.uniform(-0.05*param_value, 0.05*param_value)
             child.change_parameter_value(parameter, value)
         
     def selection(self, chromosome: Chromosome):

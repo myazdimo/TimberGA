@@ -1,4 +1,5 @@
 import os
+import matplotlib.pyplot as plt
 from typing import List, Dict
 
 class HysteresisPlot:
@@ -72,8 +73,10 @@ class HysteresisPlot:
             data["Moment"] += [ point[1] for point in self.get_cycle(cycle)]
 
         return data
+
+    def plot(self) -> None:
+
+        data = self.get_plot()
+
+        plt.plot(data["Displacement"], data["Moment"])
             
-
-
-
-
