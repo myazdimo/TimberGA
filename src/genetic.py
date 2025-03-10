@@ -1,6 +1,6 @@
 from abc import abstractmethod
 import copy
-from typing import Callable, Iterator, List, Dict
+from typing import Callable, Iterator, List, Dict, Tuple
 
 class Parameter:
     """Restrictions and value associated with a parameter"""
@@ -33,9 +33,10 @@ class Chromosome:
     """Class that represents a set of parameters.
     each chromose represents a possible uniaxial material model"""
 
-    def __init__(self, chromosome: Dict[str, Parameter]):
+    def __init__(self, chromosome: Dict[str, Parameter], boundaries: List[float]):
 
         self.chromosome = copy.deepcopy(chromosome)
+        self.boundaries = boundaries
         self.length = len(chromosome)
 
     def change_parameter_value(self, key:str, value: float) -> None:

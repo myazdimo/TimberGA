@@ -15,8 +15,8 @@ import pandas as pd
 import os
 
 
-def openseesModel(parse, plotting):
-
+def openseesModel(parse, plotting, boundaries):
+    boundaries = [boundary * 1000 for boundary in boundaries]
     wipe()
 
     WBay=1     #Width of Bay in cm
@@ -215,7 +215,7 @@ def openseesModel(parse, plotting):
     load(2, 0,st1_force,0)
 
 
-    num_push_step=25  #number of pushover steps
+    num_push_step=int(boundaries[0])  #number of pushover steps
     push_inc_step=0.001     #increment of pushover steps
     # push_data=np.zeros((1001,2))
 
@@ -241,7 +241,6 @@ def openseesModel(parse, plotting):
     integrator('DisplacementControl', 2, 2, push_inc_step)
     analysis('Static')
     #################
-
     for i in range (1,num_push_step+1):
         Force_1=[]
         Disp_1=[]
@@ -351,6 +350,8 @@ def openseesModel(parse, plotting):
         (550, 0.001),
         (600, 0.001),
     ]
+
+    parameters = [(int(boundary), 0.001) for boundary in boundaries]
 
     # Run the pushover analysis for each set of parameters
     for num_push_steps, push_inc_step in parameters:

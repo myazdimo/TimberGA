@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 import copy
 from typing import List
 from pinching4 import openseesModel
@@ -14,7 +18,7 @@ class Pinching4Model():
         #parsing function to get parameter data
         self.parse = lambda key: self.chromosome.get_parameter(key).value  
         
-        self.data = openseesModel(self.parse, plotting)
+        self.data = openseesModel(self.parse, plotting, chromosome.boundaries)
 
     def get_displacement(self) -> List:
 

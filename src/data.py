@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
 from genetic import Parameter
 
 #parameters used to model the pinching4 uniaxial material used in opensees

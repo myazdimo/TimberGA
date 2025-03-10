@@ -1,4 +1,8 @@
-from opensees import Pinching4Model
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+from openSees import Pinching4Model
 import matplotlib.pyplot as plt
 
 from plot import HysteresisPlot
@@ -15,16 +19,16 @@ class SelectionFunction(FitnessFunction):
 
     def get_ranking(self, chromosome: Chromosome) -> float:
         """returns the ranking of how close a chromosome
-        fits the target plot. The better it fits, higher
+        fits the target plot. The better it fits, lower
         the ranking value""" 
 
         pinching4 = Pinching4Model(chromosome)
         
-        ranking = self.calculate_ranking(pinching4.get_displacement(), pinching4.get_moment())
+        ranking = self._calculate_ranking(pinching4.get_displacement(), pinching4.get_moment())
 
         return ranking
 
-    def calculate_ranking(self, disp: List, force: List) -> float:
+    def _calculate_ranking(self, disp: List, force: List) -> float:
         
         target_data = self.target_plot.get_plot()
         
@@ -97,7 +101,6 @@ class OptimizationModel:
             raise Exception("Load the model before running: OptimizationModel.load()")
 
     def initChromosome(self, chromosome: Chromosome) -> Chromosome:
-
         """initializes a chromosome that already has parameters
         with default values stored in it""" 
 
@@ -116,7 +119,7 @@ class OptimizationModel:
          
         for _ in range(self.population_size):
 
-            chromosome = self.initChromosome(Chromosome(self.parameters))
+            chromosome = self.initChromosome(Chromosome(self.parameters, self.target_plot.boundaries))
             population.add_chromosome(chromosome)
         
         return population
@@ -127,7 +130,7 @@ class OptimizationModel:
 
         for i in range(child_num):
 
-            child = Chromosome(self.parameters) 
+            child = Chromosome(self.parameters, self.target_plot.boundaries) 
             alpha = random.random() #random value between 0 and 1
 
             for parameter in child:

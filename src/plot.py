@@ -1,18 +1,17 @@
 import os
 import matplotlib.pyplot as plt
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 class HysteresisPlot:
-
     """ a class that represents a hysteresis plot"""
 
     def __init__(self, dir_path: str):
         
         self.cycle_number = len(os.listdir(dir_path)) #number of cycles in the plot 
         self.data = self._prep_data(dir_path, self.cycle_number)
+        self.boundaries = self.extract_boundaries()
         
     def _prep_data(self, path: str, num: int) -> Dict[int, List[List[float]]]:
-
         """returns a dictionary with key = cycle index
         and value = list of data points where each element is
         in the form of [x, y]"""
@@ -24,13 +23,27 @@ class HysteresisPlot:
 
         return data
 
+    def extract_boundaries(self) -> List[float]:
+
+        boundaries = []
+
+        for cycle_num in range(1, self.cycle_number+1):
+            cycle = self.get_cycle(cycle_num)
+            force = [point[1] for point in cycle]
+            disp = [point[0] for point in cycle]
+
+            force_peak = max(force)
+            disp_peak = disp[force.index(force_peak)] 
+            boundaries.append(disp_peak)
+
+        return boundaries
+
     def __iter__(self):
 
         return iter(self.data)
 
     def get_cycle(self, cycle_num: int) -> List[List[float]]:
-
-        """return a specific cycle"""
+        """return a specific cycle, cycle number starts from 1"""
 
         return self.data[cycle_num]
 
