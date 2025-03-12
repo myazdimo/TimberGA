@@ -116,7 +116,7 @@ class FitnessFunction:
     """Interface class for a selection function"""    
 
     @abstractmethod
-    def get_ranking(self, chromosome: Chromosome) -> float:
+    def get_ranking(self, chromosome: Chromosome) -> Tuple[float, float]:
         pass
 
 

@@ -1,11 +1,7 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-
 import copy
 from typing import List
-from pinching4 import openseesModel
-from genetic import Chromosome
+from src.pinching4 import openseesModel
+from src.genetic import Chromosome
 
 class Pinching4Model():
     """Class that takes a chromosome a models a pinching4 

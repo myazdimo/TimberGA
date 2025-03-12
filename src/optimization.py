@@ -1,45 +1,66 @@
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-
-from openSees import Pinching4Model
+from src.openSees import Pinching4Model
+import numpy as np
 import matplotlib.pyplot as plt
 
-from plot import HysteresisPlot
-from data import parameters as params 
+from src.plot import HysteresisPlot
+from src.data import parameters as params 
 import random
-from genetic import Chromosome, FitnessFunction, Parameter, Population
-from typing import Dict, List 
+from src.genetic import Chromosome, FitnessFunction, Parameter, Population
+from typing import Dict, List, Tuple 
 
 class SelectionFunction(FitnessFunction):
 
     def __init__(self, target_plot: HysteresisPlot):
 
-        self.target_plot = target_plot
+        self.target_data = target_plot.get_plot()
 
-    def get_ranking(self, chromosome: Chromosome) -> float:
+    def get_ranking(self, chromosome: Chromosome) -> Tuple[float, float]:
         """returns the ranking of how close a chromosome
         fits the target plot. The better it fits, lower
-        the ranking value""" 
+        the ranking value
+        returns res: (force ranking, energy ranking)""" 
 
         pinching4 = Pinching4Model(chromosome)
         
-        ranking = self._calculate_ranking(pinching4.get_displacement(), pinching4.get_moment())
+        disp = pinching4.get_displacement()
+        force = pinching4.get_moment()
 
-        return ranking
-
-    def _calculate_ranking(self, disp: List, force: List) -> float:
-        
-        target_data = self.target_plot.get_plot()
-        
         # number of points is taken from the plot with the least number of points
-        points_num = len(disp) if len(disp) <= len(target_data["Displacement"]) else len(target_data["Displacement"])
+        self.points_num = len(disp) if len(disp) <= len(self.target_data["Displacement"]) else len(self.target_data["Displacement"])
 
+        force_ranking = self._calculate_force_ranking(force)
+        energy_ranking = self._calculate_energy_ranking(disp, force)
+
+        res = (force_ranking, energy_ranking)
+        return res
+
+    def _calculate_energy_ranking(self, disp: List[float], force: List[float]) -> float:
+        
         numerator = 0
         denominator = 0
-        for i in range(points_num):
-            numerator += target_data["Moment"][i] - force[i]
-            denominator += target_data["Moment"][i]
+
+        for i in range(1, self.points_num):
+
+            disp = np.array(disp[0:i+1])
+            force = np.array(force[0:i+1])
+            target_disp = np.array(self.target_data["Displacement"][0:i+1])
+            target_force = np.array(self.target_data["Moment"][0:i+1])
+
+            energy = np.trapz(abs(force), disp)
+            target_energy = np.trapz(abs(target_force), target_disp)
+
+            numerator += abs(target_energy - energy) 
+            denominator += target_energy
+
+        return (numerator/denominator)
+
+    def _calculate_force_ranking(self, force: List) -> float:
+        
+        numerator = 0
+        denominator = 0
+        for i in range(self.points_num):
+            numerator += abs(self.target_data["Moment"][i] - force[i])
+            denominator += self.target_data["Moment"][i]
 
         return (numerator/denominator)
 

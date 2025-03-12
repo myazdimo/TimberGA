@@ -1,34 +1,30 @@
-import sys
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-
-from genetic import Chromosome
+from src.genetic import Chromosome
 import numpy as np
 
-from optimization import SelectionFunction
-from plot import HysteresisPlot
-from data import parameters
+from src.optimization import SelectionFunction
+from src.plot import HysteresisPlot
+from src.data import parameters
 
-from geatpy.geatpy.Problem import Problem
+import geatpy as ea
 types = []
 
-class OptimizationProblem(Problem):
+class OptimizationProblem(ea.Problem):
 
-    def __init__(self, M=1):
+    def __init__(self, M=2):
 
         name = 'Pinching4'
-        Dim = 38 #number of decision variables
+        Dim = 30 #number of decision variables
         maxormins = [1] * M # Initialize maxormins (objective optimization flag list, 1: minimize the objective; -1: maximize the objective)
         varTypes = [0] * Dim # Initialize varTypes (types of decision variables, 0: real number; 1: integer) 
         lb = [ parameters[parameter].lower_bound for parameter in parameters] #lower bounds
         ub = [ parameters[parameter].upper_bound for parameter in parameters] #upper bounds
         lbin = [1] * Dim #lower bound inclusion
         ubin = [1] * Dim #upper bound inclusion
+        self.target_plot = HysteresisPlot("graph")
 
         #parent class constructor called to complete instantiation
 
-        Problem.__init__(self,
+        ea.Problem.__init__(self,
                          name,
                          M,
                          maxormins,
@@ -40,26 +36,32 @@ class OptimizationProblem(Problem):
                          ubin)
 
     def evalVars(self, Vars): #objective function
+
+        print("evaluating population...")
         
-        target_plot = HysteresisPlot("graph")
-        chromosome = Chromosome(parameters, target_plot.boundaries)
+        selection_function = SelectionFunction(self.target_plot)    
+        f1 = []
+        f2 = []
 
-        i = 0
-        for parameter in chromosome:
-            chromosome.change_parameter_value(parameter, Vars[:, [i]])
-            i += 1
+        for individual in Vars:
+            i=0
+            chromosome = Chromosome(parameters, self.target_plot.boundaries)
+            for parameter in chromosome:
+                chromosome.change_parameter_value(parameter, individual[i])
+                i += 1
 
-        print("number of params:", i)
+            force_ranking, energy_ranking = selection_function.get_ranking(chromosome)
 
-        selection_function = SelectionFunction(target_plot)    
+            f1.append(force_ranking)
+            f2.append(energy_ranking)
 
-        f1 = selection_function.get_ranking(chromosome)
+        f1 = np.array(f1).reshape(-1,1)
+        f2 = np.array(f2).reshape(-1,1)
+        f = np.hstack([f1, f2])
 
-        CV = np.hstack([])
+        CV = np.hstack([-f1])
 
-        f = np.hstack([f1])
-
-        return f, CV
+        return f, CV 
 
 
 
