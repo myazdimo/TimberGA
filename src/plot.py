@@ -1,21 +1,22 @@
+import copy
 import os
 import matplotlib.pyplot as plt
 from typing import List, Dict 
 
-def _prep_data(self, path: str, num: int) -> Dict[int, List[List[float]]]:
+def prep_data(dir_path: str) -> Dict[int, List[List[float]]]:
     """returns a dictionary with key = cycle index
     and value = list of data points where each element is
     in the form of [x, y]"""
     
     data = {}
+    num = len(os.listdir(dir_path))
     for i in range(1, num+1):
         
-        data[i] = self._extract(f"{path}/{i}.txt")
+        data[i] = extract(f"{dir_path}/{i}.txt")
 
     return data
 
-def _extract(self, path) -> List:
-    
+def extract(path) -> List:
     """returns the collection of points associated
     with a cycle"""
     
@@ -38,10 +39,10 @@ class HysteresisPlot:
     and value = list of data points where each element is
     in the form of [x, y]"""
 
-    def __init__(self, data: Dict[int, List[List[float]]]):
+    def __init__(self, data: Dict[int, List[List[float]]] = {}):
         
+        self.data = copy.deepcopy(data)
         self.cycle_number = len(data) #number of cycles in the plot 
-        self.data = data
         self.boundaries = self.extract_boundaries()
         
     def extract_boundaries(self) -> List[float]:
@@ -58,6 +59,20 @@ class HysteresisPlot:
             boundaries.append(disp_peak)
 
         return boundaries
+
+    def add_cycle(self, disp: List[float], force: List[float]):
+
+        disp = copy.deepcopy(disp)
+        force = copy.deepcopy(force)
+
+        if len(disp) != len(force):
+            raise Exception("displacement and force dont have the same length")
+
+        self.data[self.cycle_number+1] = []
+        for i in range(len(disp)):
+            self.data[self.cycle_number+1].append([disp[i], force[i]])
+
+        self.cycle_number += 1
 
     def __iter__(self):
 

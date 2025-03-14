@@ -1,25 +1,62 @@
-import copy
-from typing import List
+from typing import Dict, List
+from src.plot import HysteresisPlot
+import matplotlib.pyplot as plt
 from src.pinching4 import openseesModel
 from src.genetic import Chromosome
 
 class Pinching4Model():
-    """Class that takes a chromosome a models a pinching4 
+    """Class that takes a chromosome and models a pinching4 
     uniaxial material based on it"""
 
-    def __init__(self, chromosome: Chromosome, plotting=False):
-
+    def __init__(self, chromosome: Chromosome):
+        
         self.chromosome = chromosome
+        self.cycle_num = len(chromosome.boundaries)
 
         #parsing function to get parameter data
         self.parse = lambda key: self.chromosome.get_parameter(key).value  
         
-        self.data = openseesModel(self.parse, plotting, chromosome.boundaries)
+        self.hysteresis = HysteresisPlot()
+        data = openseesModel(self.parse, self.chromosome.boundaries)      
+        self._prep_hysteresis(data)
 
-    def get_displacement(self) -> List:
+    def _prep_hysteresis(self, data: Dict[str, List[float]]):
+        """splits the model data into cycles and adds them to
+        the hysteresis object"""
 
-        return copy.deepcopy(self.data["Displacement"])
+        disp = data["Displacement"]
+        force = data["Moment"]
+        points = len(disp)
+        disp_cycle = []
+        force_cycle = []
+        switch = False #default state of the graph
 
-    def get_moment(self) -> List:
+        for point in range(points):
+            if force[point] < 0:
+                switch = True #flip state as soon as force is negative
 
-        return copy.deepcopy(self.data["Moment"])
+            #reset cycle when point hits first quadrant again or if at last point
+            if (switch and disp[point] >= 0 and force[point] > 0) or point == points-1:
+                self.hysteresis.add_cycle(disp_cycle, force_cycle)
+                #reset force and displacement values
+                #start of new cycle
+                disp_cycle = []
+                force_cycle = []
+                switch = False #flip state to default when point is in first quadrant again
+
+            disp_cycle.append(disp[point])
+            force_cycle.append(force[point])
+
+    def plot(self):
+
+            openseesModel(self.parse, self.chromosome.boundaries, plotting=True)
+
+
+
+
+
+        
+
+
+
+

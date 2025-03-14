@@ -1,6 +1,5 @@
 from src.openSees import Pinching4Model
 import numpy as np
-import matplotlib.pyplot as plt
 
 from src.plot import HysteresisPlot
 from src.data import parameters as params 
@@ -12,7 +11,7 @@ class SelectionFunction(FitnessFunction):
 
     def __init__(self, target_plot: HysteresisPlot):
 
-        self.target_data = target_plot.get_plot()
+        self.target_plot = target_plot
 
     def get_ranking(self, chromosome: Chromosome) -> Tuple[float, float]:
         """returns the ranking of how close a chromosome
@@ -20,21 +19,38 @@ class SelectionFunction(FitnessFunction):
         the ranking value
         returns res: (force ranking, energy ranking)""" 
 
+        avg_force = 0
+        avg_energy = 0
         pinching4 = Pinching4Model(chromosome)
-        
-        disp = pinching4.get_displacement()
-        force = pinching4.get_moment()
 
-        # number of points is taken from the plot with the least number of points
-        self.points_num = len(disp) if len(disp) <= len(self.target_data["Displacement"]) else len(self.target_data["Displacement"])
+        cycles = pinching4.hysteresis.cycle_number
 
-        force_ranking = self._calculate_force_ranking(force)
-        energy_ranking = self._calculate_energy_ranking(disp, force)
+        for cycle in range(cycles):
+            #model data
+            data = pinching4.hysteresis.get_cycle(cycle+1) #cycle index starts from 1
+            force = [point[1] for point in data]
+            disp = [point[0] for point in data]
 
-        res = (force_ranking, energy_ranking)
+            #test data
+            target_data = self.target_plot.get_cycle(cycle+1)
+            target_disp = [point[0] for point in target_data]
+            target_force = [point[1] for point in target_data]
+
+            # number of points is taken from the plot with the least number of points
+            self.points_num = len(disp) if len(disp) <= len(target_disp) else len(target_disp)
+
+            force_ranking = self._calculate_force_ranking(target_force, force)
+            energy_ranking = self._calculate_energy_ranking(target_disp, target_force, disp, force)
+
+            avg_force += force_ranking
+            avg_energy += energy_ranking
+
+        res = (avg_force/cycles, avg_energy/cycles)
+
         return res
 
-    def _calculate_energy_ranking(self, disp: List[float], force: List[float]) -> float:
+    def _calculate_energy_ranking(self, target_disp: List[float], target_force: List[float],
+                                  disp: List[float], force: List[float]) -> float:
         
         numerator = 0
         denominator = 0
@@ -43,24 +59,24 @@ class SelectionFunction(FitnessFunction):
 
             disp = np.array(disp[0:i+1])
             force = np.array(force[0:i+1])
-            target_disp = np.array(self.target_data["Displacement"][0:i+1])
-            target_force = np.array(self.target_data["Moment"][0:i+1])
+            target_disp_array = np.array(target_disp[0:i+1])
+            target_force_array = np.array(target_force[0:i+1])
 
             energy = np.trapz(abs(force), disp)
-            target_energy = np.trapz(abs(target_force), target_disp)
+            target_energy = np.trapz(abs(target_force_array), target_disp_array)
 
             numerator += abs(target_energy - energy) 
             denominator += target_energy
 
         return (numerator/denominator)
 
-    def _calculate_force_ranking(self, force: List) -> float:
+    def _calculate_force_ranking(self, target_force: List[float], force: List[float]) -> float:
         
         numerator = 0
         denominator = 0
         for i in range(self.points_num):
-            numerator += abs(self.target_data["Moment"][i] - force[i])
-            denominator += self.target_data["Moment"][i]
+            numerator += abs(target_force[i] - force[i])
+            denominator += target_force[i]
 
         return (numerator/denominator)
 

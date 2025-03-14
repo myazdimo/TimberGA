@@ -6,6 +6,7 @@ Created on Sun Jul  7 16:20:54 2024
 """
 
 import copy
+from typing import Callable, Dict, List
 from openseespy.opensees import *
 import opsvis as opsv
 
@@ -15,8 +16,11 @@ import pandas as pd
 import os
 
 
-def openseesModel(parse, plotting, boundaries):
-    boundaries = [boundary * 1000 for boundary in boundaries]
+def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str, List]:
+    """given a chromosome parsing function and a list of boundaries,
+    this function creates an opensees pinching4 model and plots it if required"""
+
+    boundaries = [boundary * 100 for boundary in boundaries]
     wipe()
 
     WBay=1     #Width of Bay in cm
@@ -216,7 +220,7 @@ def openseesModel(parse, plotting, boundaries):
 
 
     num_push_step=int(boundaries[0])  #number of pushover steps
-    push_inc_step=0.001     #increment of pushover steps
+    push_inc_step=0.01     #increment of pushover steps
     # push_data=np.zeros((1001,2))
 
 
@@ -343,15 +347,15 @@ def openseesModel(parse, plotting, boundaries):
         (200, 0.001),
         (250, 0.001),
         (300, 0.001),
-        (350, 0.001),
-        (400, 0.001),
-        (450, 0.001),
-        (500, 0.001), 
-        (550, 0.001),
-        (600, 0.001),
+    #     (350, 0.001),
+    #     (400, 0.001),
+    #     (450, 0.001),
+    #     (500, 0.001), 
+    #     (550, 0.001),
+    #     (600, 0.001),
     ]
 
-    parameters = [(int(boundary), 0.001) for boundary in boundaries]
+    parameters = [(int(boundary), 0.01) for boundary in boundaries[1:]]
 
     # Run the pushover analysis for each set of parameters
     for num_push_steps, push_inc_step in parameters:
@@ -410,8 +414,6 @@ def openseesModel(parse, plotting, boundaries):
         plt.ylabel('Moment (kN.m)')
         plt.title('Moment vs. Rotation of Pinching4 for Bolted Connection')
         plt.grid(True)
-
-        plt.show()
 
     # opsv.plot_model()
     # opsv.plot_defo()

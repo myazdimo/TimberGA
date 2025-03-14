@@ -2,7 +2,7 @@ from src.genetic import Chromosome
 import numpy as np
 
 from src.optimization import SelectionFunction
-from src.plot import HysteresisPlot
+from src.plot import HysteresisPlot, prep_data 
 from src.data import parameters
 
 import geatpy as ea
@@ -20,7 +20,8 @@ class OptimizationProblem(ea.Problem):
         ub = [ parameters[parameter].upper_bound for parameter in parameters] #upper bounds
         lbin = [1] * Dim #lower bound inclusion
         ubin = [1] * Dim #upper bound inclusion
-        self.target_plot = HysteresisPlot("graph")
+        self.target_plot = HysteresisPlot(prep_data("graph"))
+        self.selection_function = SelectionFunction(self.target_plot)
 
         #parent class constructor called to complete instantiation
 
@@ -39,10 +40,10 @@ class OptimizationProblem(ea.Problem):
 
         print("evaluating population...")
         
-        selection_function = SelectionFunction(self.target_plot)    
         f1 = []
         f2 = []
-
+        
+        #Vars contains a population
         for individual in Vars:
             i=0
             chromosome = Chromosome(parameters, self.target_plot.boundaries)
@@ -50,7 +51,7 @@ class OptimizationProblem(ea.Problem):
                 chromosome.change_parameter_value(parameter, individual[i])
                 i += 1
 
-            force_ranking, energy_ranking = selection_function.get_ranking(chromosome)
+            force_ranking, energy_ranking = self.selection_function.get_ranking(chromosome)
 
             f1.append(force_ranking)
             f2.append(energy_ranking)
@@ -62,8 +63,3 @@ class OptimizationProblem(ea.Problem):
         CV = np.hstack([-f1])
 
         return f, CV 
-
-
-
-
-        

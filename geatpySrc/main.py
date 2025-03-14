@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from src.openSees import Pinching4Model
 from src.data import parameters
 from src.genetic import Chromosome
@@ -9,15 +10,17 @@ import geatpy as ea
 if __name__ == "__main__":
 
     problem = OptimizationProblem()
+    pop_size = 100
+    generations = 10
 
     #construct the algorithm
     algorithm = ea.moea_NSGA2_templet( 
         problem,
-        ea.Population(Encoding='BG', NIND=5000), #Binary encoding, Population size = 100
-        MAXGEN=10, #maximum number of generations
+        ea.Population(Encoding='BG', NIND=pop_size), #Binary encoding, Population size = 100
+        MAXGEN=generations, #maximum number of generations
         logTras=0) # Log recording interval (0 means no logging) 
 
-    print("Initializing algorithm with 5000 Population size and 10 generations")
+    print(f"Initializing algorithm with {pop_size} Population size and {generations} generations")
     
     algorithm.mutOper.Pm = 0.2   
     algorithm.recOper.XOVR = 0.9
@@ -40,5 +43,7 @@ if __name__ == "__main__":
         print(parameter+": ", res["Vars"][0][i])
         i += 1
 
-    problem.target_plot.plot()
-    Pinching4Model(result, plotting=True)
+    problem.target_plot.plot() #plot target graph
+    res_model = Pinching4Model(result)
+    res_model.plot() #plot pinching4 solution model
+    plt.show()
