@@ -1,3 +1,4 @@
+from src.helper import integrate
 from src.openSees import Pinching4Model
 import numpy as np
 
@@ -12,6 +13,30 @@ class SelectionFunction(FitnessFunction):
     def __init__(self, target_plot: HysteresisPlot):
 
         self.target_plot = target_plot
+        self.target_energy = self._load_target_energy()
+
+    def _load_target_energy(self) -> Dict[int, List[float]]:
+        """Returns a dictionary with key = cycle index
+        and value = energy upto a data point"""
+
+        energy = {}
+        cycles = self.target_plot.cycle_number
+
+        for cycle in range(cycles):
+            energy[cycle+1] = []
+
+            #test data
+            target_data = self.target_plot.get_cycle(cycle+1)
+            target_disp = [point[0] for point in target_data]
+            target_force = [point[1] for point in target_data]
+
+            for i in range(1, len(target_disp)):
+                target_disp_array = np.array(target_disp[0:i+1])
+                target_force_array = np.array(target_force[0:i+1])
+                target_energy = integrate(abs(target_force_array), target_disp_array)
+                energy[cycle+1].append(target_energy)
+
+        return energy
 
     def get_ranking(self, chromosome: Chromosome) -> Tuple[float, float]:
         """returns the ranking of how close a chromosome
@@ -24,7 +49,7 @@ class SelectionFunction(FitnessFunction):
         pinching4 = Pinching4Model(chromosome)
 
         cycles = pinching4.hysteresis.cycle_number
-
+        assert cycles == self.target_plot.cycle_number
         for cycle in range(cycles):
             #model data
             data = pinching4.hysteresis.get_cycle(cycle+1) #cycle index starts from 1
@@ -38,9 +63,10 @@ class SelectionFunction(FitnessFunction):
 
             # number of points is taken from the plot with the least number of points
             self.points_num = len(disp) if len(disp) <= len(target_disp) else len(target_disp)
+            # print(f"test points: {len(target_disp)}, model points: {len(disp)}")
 
             force_ranking = self._calculate_force_ranking(target_force, force)
-            energy_ranking = self._calculate_energy_ranking(target_disp, target_force, disp, force)
+            energy_ranking = self._calculate_energy_ranking(cycle+1, disp, force)
 
             avg_force += force_ranking
             avg_energy += energy_ranking
@@ -49,24 +75,19 @@ class SelectionFunction(FitnessFunction):
 
         return res
 
-    def _calculate_energy_ranking(self, target_disp: List[float], target_force: List[float],
+    def _calculate_energy_ranking(self, cycle_number: int,
                                   disp: List[float], force: List[float]) -> float:
-        
         numerator = 0
         denominator = 0
 
         for i in range(1, self.points_num):
 
-            disp = np.array(disp[0:i+1])
-            force = np.array(force[0:i+1])
-            target_disp_array = np.array(target_disp[0:i+1])
-            target_force_array = np.array(target_force[0:i+1])
+            disp_array = np.array(disp[0:i+1])
+            force_array = np.array(force[0:i+1])
+            energy = integrate(abs(force_array), disp_array)
 
-            energy = np.trapz(abs(force), disp)
-            target_energy = np.trapz(abs(target_force_array), target_disp_array)
-
-            numerator += abs(target_energy - energy) 
-            denominator += target_energy
+            numerator += abs(self.target_energy[cycle_number][i-1] - energy) 
+            denominator += self.target_energy[cycle_number][i-1]
 
         return (numerator/denominator)
 

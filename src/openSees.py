@@ -1,6 +1,5 @@
 from typing import Dict, List
 from src.plot import HysteresisPlot
-import matplotlib.pyplot as plt
 from src.pinching4 import openseesModel
 from src.genetic import Chromosome
 
@@ -11,7 +10,6 @@ class Pinching4Model():
     def __init__(self, chromosome: Chromosome):
         
         self.chromosome = chromosome
-        self.cycle_num = len(chromosome.boundaries)
 
         #parsing function to get parameter data
         self.parse = lambda key: self.chromosome.get_parameter(key).value  
@@ -50,13 +48,3 @@ class Pinching4Model():
     def plot(self):
 
             openseesModel(self.parse, self.chromosome.boundaries, plotting=True)
-
-
-
-
-
-        
-
-
-
-

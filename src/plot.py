@@ -98,7 +98,6 @@ class HysteresisPlot:
             "Displacement": [],
             "Moment": []
         }
-
         for cycle in range(1, self.cycle_number+1):
 
             data["Displacement"] += [ point[0] for point in self.get_cycle(cycle)]
@@ -109,6 +108,5 @@ class HysteresisPlot:
     def plot(self) -> None:
 
         data = self.get_plot()
-
         plt.plot(data["Displacement"], data["Moment"])
             

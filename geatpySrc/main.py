@@ -1,4 +1,3 @@
-import numpy as np
 import matplotlib.pyplot as plt
 from src.openSees import Pinching4Model
 from src.data import parameters

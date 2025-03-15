@@ -20,7 +20,7 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
     """given a chromosome parsing function and a list of boundaries,
     this function creates an opensees pinching4 model and plots it if required"""
 
-    boundaries = [boundary * 100 for boundary in boundaries]
+    boundaries = [boundary * 400 for boundary in boundaries]
     wipe()
 
     WBay=1     #Width of Bay in cm
@@ -220,7 +220,7 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
 
 
     num_push_step=int(boundaries[0])  #number of pushover steps
-    push_inc_step=0.01     #increment of pushover steps
+    push_inc_step=0.0025     #increment of pushover steps
     # push_data=np.zeros((1001,2))
 
 
@@ -355,7 +355,7 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
     #     (600, 0.001),
     ]
 
-    parameters = [(int(boundary), 0.01) for boundary in boundaries[1:]]
+    parameters = [(int(boundary), 0.0025) for boundary in boundaries[1:]]
 
     # Run the pushover analysis for each set of parameters
     for num_push_steps, push_inc_step in parameters:
