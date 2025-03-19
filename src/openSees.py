@@ -1,4 +1,5 @@
 from typing import Dict, List
+
 from src.plot import HysteresisPlot
 from src.pinching4 import openseesModel
 from src.genetic import Chromosome
@@ -47,4 +48,5 @@ class Pinching4Model():
 
     def plot(self):
 
-            openseesModel(self.parse, self.chromosome.boundaries, plotting=True)
+        #plot using pinching4 function
+        openseesModel(self.parse, self.chromosome.boundaries, plotting=True)

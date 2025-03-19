@@ -1,21 +1,22 @@
 import matplotlib.pyplot as plt
+import geatpy as ea
+
 from src.openSees import Pinching4Model
 from src.data import parameters
 from src.genetic import Chromosome
-from model import OptimizationProblem
 
-import geatpy as ea
+from model import OptimizationProblem
 
 if __name__ == "__main__":
 
     problem = OptimizationProblem()
-    pop_size = 100
+    pop_size = 100 #Population size
     generations = 50
 
     #construct the algorithm
     algorithm = ea.moea_NSGA2_templet( 
         problem,
-        ea.Population(Encoding='BG', NIND=pop_size), #Binary encoding, Population size = 100
+        ea.Population(Encoding='BG', NIND=pop_size), #Binary encoding
         MAXGEN=generations, #maximum number of generations
         logTras=0) # Log recording interval (0 means no logging) 
 
@@ -34,10 +35,23 @@ if __name__ == "__main__":
     plt.plot(problem.force_rankings)
     plt.title("force ranking")
     plt.show()
+
     plt.figure()
     plt.plot(problem.energy_rankings)
     plt.title("energy ranking")
     plt.show()
+
+    plt.figure()
+    plt.plot(sorted(problem.energy_rankings, reverse=True))
+    plt.title("energy ranking ordered")
+    plt.show()
+
+    plt.figure()
+    plt.plot(sorted(problem.force_rankings, reverse=True))
+    plt.title("force ranking ordered")
+    plt.show()
+
+
     result = Chromosome(parameters, problem.target_plot.boundaries) #result initialization
 
     print("Results:-")

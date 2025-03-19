@@ -3,12 +3,13 @@ import copy
 from typing import Callable, Iterator, List, Dict, Tuple
 
 class Parameter:
-    """Restrictions and value associated with a parameter"""
+    """Parameter data class
+    Restrictions and value associated with a parameter"""
 
     def __init__(self, nature: str, lower_bound: float, upper_bound: float):
 
         self.value = 0
-        self.nature = nature
+        self.nature = nature #constant or variable
 
         if self.nature not in ["variable", "constant"]:
             raise ValueError(f"{self.nature} nature is not allowed. Only 'variable' or 'constant'")
@@ -37,7 +38,7 @@ class Chromosome:
     def __init__(self, chromosome: Dict[str, Parameter], boundaries: List[float]):
 
         self.chromosome = copy.deepcopy(chromosome)
-        self.boundaries = boundaries
+        self.boundaries = boundaries.copy()
         self.length = len(chromosome)
 
     def change_parameter_value(self, key:str, value: float) -> None:

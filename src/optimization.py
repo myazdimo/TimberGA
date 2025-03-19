@@ -1,13 +1,13 @@
 from numpy._typing import NDArray
+from typing import Dict, Tuple 
+import numpy as np
+import random
+
 from src.helper import integrate, splitter
 from src.openSees import Pinching4Model
-import numpy as np
-
 from src.plot import HysteresisPlot
 from src.data import parameters as params 
-import random
 from src.genetic import Chromosome, FitnessFunction, Parameter, Population
-from typing import Dict, Tuple 
 
 class SelectionFunction(FitnessFunction):
 
@@ -17,9 +17,12 @@ class SelectionFunction(FitnessFunction):
 
     def _interpolate(self, x: NDArray, y: NDArray, 
                      x_target: NDArray, y_target: NDArray) -> Tuple[NDArray, NDArray]:
+        """Interpolate a hysteresis cycle to match the number
+        points in a target cycle"""
 
-        x_subsets, y_subsets, order = splitter(y, x)
-        x_target_subsets, y_target_subsets, target_order = splitter(y_target, x_target)
+        x_subsets, y_subsets, order = splitter(y, x) #split hysteresis cycle into monotonic subsets 
+        x_target_subsets, y_target_subsets, target_order = splitter(y_target, x_target) #split target cycle into monotonic subsets
+
         y_interp = np.array([])
         x_interp = np.array([])
 
@@ -29,13 +32,16 @@ class SelectionFunction(FitnessFunction):
         for i in range(len(x_subsets)):
             assert len(x_target_subsets[i]) == len(y_target_subsets[i])
 
+            #decreasing monotonicity
             if order[i] == -1:
                 disp_dense = np.linspace(x_subsets[i].max(), x_subsets[i].min(), len(x_target_subsets[i]))
                 force_dense = np.interp(disp_dense, np.flip(x_subsets[i]), np.flip(y_subsets[i]))
+            #increasing monotonicity
             else:
                 disp_dense = np.linspace(x_subsets[i].min(), x_subsets[i].max(), len(x_target_subsets[i]))
                 force_dense = np.interp(disp_dense, x_subsets[i], y_subsets[i])
 
+            #adding subset to final plot
             x_interp = np.concatenate((x_interp, disp_dense))
             y_interp = np.concatenate((y_interp, force_dense))
 
@@ -93,7 +99,7 @@ class SelectionFunction(FitnessFunction):
             avg_force += force_ranking
             avg_energy += energy_ranking
 
-        res = (avg_force/cycles, avg_energy/cycles)
+        res = (avg_force/cycles, avg_energy/cycles) #average force and energy ranking
 
         return res
 
@@ -104,13 +110,14 @@ class SelectionFunction(FitnessFunction):
 
         for i in range(1, self.points_num):
 
+            #calculate energy upto ith point
             disp_array = disp[0:i+1]
             force_array = force[0:i+1]
-            energy = integrate(abs(force_array), disp_array) #calculate energy upto ith point
+            energy = integrate(abs(force_array), disp_array) 
 
             target_disp_array = target_disp[0:i+1]
             target_force_array = target_force[0:i+1]
-            target_energy = integrate(abs(target_force_array), target_disp_array) #calculate energy upto ith point
+            target_energy = integrate(abs(target_force_array), target_disp_array) 
 
             numerator += abs(target_energy - energy) 
             denominator += target_energy 

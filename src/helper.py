@@ -65,6 +65,7 @@ def integrate(y: NDArray, x: NDArray) -> float:
 
     area = 0
     for i in range(len(x_subsets)):
+        #calculate area for each subset
         area += abs(np.trapz(y_subsets[i],x_subsets[i]))
 
     return area

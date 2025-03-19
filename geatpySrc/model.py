@@ -1,13 +1,10 @@
-from src.genetic import Chromosome
-import matplotlib.pyplot as plt
 import numpy as np
+import geatpy as ea
 
+from src.genetic import Chromosome
 from src.optimization import SelectionFunction
 from src.plot import HysteresisPlot, prep_data 
 from src.data import parameters
-
-import geatpy as ea
-types = []
 
 class OptimizationProblem(ea.Problem):
 
@@ -21,13 +18,13 @@ class OptimizationProblem(ea.Problem):
         ub = [ parameters[parameter].upper_bound for parameter in parameters] #upper bounds
         lbin = [1] * Dim #lower bound inclusion
         ubin = [1] * Dim #upper bound inclusion
+
         self.target_plot = HysteresisPlot(prep_data("graph"))
         self.selection_function = SelectionFunction(self.target_plot)
-        self.energy_rankings = []
-        self.force_rankings = []
+        self.energy_rankings = [] #list of energy rankings in order
+        self.force_rankings = [] #list of force rankings in order
 
         #parent class constructor called to complete instantiation
-
         ea.Problem.__init__(self,
                          name,
                          M,
