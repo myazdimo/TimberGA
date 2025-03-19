@@ -6,6 +6,7 @@ Created on Sun Jul  7 16:20:54 2024
 """
 
 import copy
+from typing import Callable, Dict, List
 from openseespy.opensees import *
 import opsvis as opsv
 
@@ -15,8 +16,11 @@ import pandas as pd
 import os
 
 
-def openseesModel(parse, plotting):
+def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str, List]:
+    """given a chromosome parsing function and a list of boundaries,
+    this function creates an opensees pinching4 model and plots it if required"""
 
+    boundaries = [boundary * 400 for boundary in boundaries]
     wipe()
 
     WBay=1     #Width of Bay in cm
@@ -144,7 +148,7 @@ def openseesModel(parse, plotting):
 
     uniaxialMaterial('Pinching4', 100, 
                         parse("ePf1"), parse("ePd1"), parse("ePf2"), parse("ePd2"), parse("ePf3"), parse("ePd3"), parse("ePf4"), parse("ePd4"), 
-                        parse("eNf1"), parse("eNd1"), parse("eNf2"), parse("eNd2"), parse("eNf3"), parse("eNd3"), parse("eNf4"), parse("eNd4"),
+                        -(parse("ePf1")), -(parse("ePd1")), -(parse("ePf2")), -(parse("ePd2")), -(parse("ePf3")), -(parse("ePd3")), -(parse("ePf4")), -(parse("ePd4")),
                         parse("rDispP"), parse("fFoceP"), parse("uForceP"),
                         parse("rDispN"), parse("fFoceN"), parse("uForceN"),
                         parse("gK1"), parse("gK2"), parse("gK3"), parse("gK4"), parse("gKLim"),
@@ -215,8 +219,8 @@ def openseesModel(parse, plotting):
     load(2, 0,st1_force,0)
 
 
-    num_push_step=25  #number of pushover steps
-    push_inc_step=0.001     #increment of pushover steps
+    num_push_step=int(boundaries[0])  #number of pushover steps
+    push_inc_step=0.0025     #increment of pushover steps
     # push_data=np.zeros((1001,2))
 
 
@@ -241,7 +245,6 @@ def openseesModel(parse, plotting):
     integrator('DisplacementControl', 2, 2, push_inc_step)
     analysis('Static')
     #################
-
     for i in range (1,num_push_step+1):
         Force_1=[]
         Disp_1=[]
@@ -344,13 +347,15 @@ def openseesModel(parse, plotting):
         (200, 0.001),
         (250, 0.001),
         (300, 0.001),
-        (350, 0.001),
-        (400, 0.001),
-        (450, 0.001),
-        (500, 0.001), 
-        (550, 0.001),
-        (600, 0.001),
+    #     (350, 0.001),
+    #     (400, 0.001),
+    #     (450, 0.001),
+    #     (500, 0.001), 
+    #     (550, 0.001),
+    #     (600, 0.001),
     ]
+
+    parameters = [(int(boundary), 0.0025) for boundary in boundaries[1:]]
 
     # Run the pushover analysis for each set of parameters
     for num_push_steps, push_inc_step in parameters:
@@ -409,8 +414,6 @@ def openseesModel(parse, plotting):
         plt.ylabel('Moment (kN.m)')
         plt.title('Moment vs. Rotation of Pinching4 for Bolted Connection')
         plt.grid(True)
-
-        plt.show()
 
     # opsv.plot_model()
     # opsv.plot_defo()

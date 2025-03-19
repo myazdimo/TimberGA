@@ -1,16 +1,23 @@
 from abc import abstractmethod
 import copy
-from typing import Callable, Iterator, List, Dict
+from typing import Callable, Iterator, List, Dict, Tuple
 
 class Parameter:
-    """Restrictions and value associated with a parameter"""
+    """Parameter data class
+    Restrictions and value associated with a parameter"""
 
-    def __init__(self, value: float, lower_bound: float, upper_bound: float):
-        self.value = value
+    def __init__(self, nature: str, lower_bound: float, upper_bound: float):
+
+        self.value = 0
+        self.nature = nature #constant or variable
+
+        if self.nature not in ["variable", "constant"]:
+            raise ValueError(f"{self.nature} nature is not allowed. Only 'variable' or 'constant'")
+
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def set_value(self, value) -> None:
+    def set_value(self, value: float) -> None:
 
         self.value = value
 
@@ -24,15 +31,19 @@ class Parameter:
 
 
 class Chromosome:
-    """Class that represents a set of parameters.
+    """An individual in a population.
+    Class that represents a set of parameters.
     each chromose represents a possible uniaxial material model"""
 
-    def __init__(self, chromosome: Dict[str, Parameter]):
+    def __init__(self, chromosome: Dict[str, Parameter], boundaries: List[float]):
 
         self.chromosome = copy.deepcopy(chromosome)
+        self.boundaries = boundaries.copy()
         self.length = len(chromosome)
 
     def change_parameter_value(self, key:str, value: float) -> None:
+        """key: name of parameter
+        value: value of parameter"""
 
         if key in self.chromosome:
             self.chromosome[key].set_value(value)
@@ -58,16 +69,17 @@ class Chromosome:
         return f"{self.chromosome}"
 
 class Population:
-    """Class that represents a collection of chromosomes.
+    """Class that represents a population (collection of chromosomes).
     Each population represents a single generation"""
 
     def __init__(self, population: List[Chromosome] = []):
+        """can be initialized by passing a list of chromosomes"""
 
         self.population_size = len(population)
         self.population = copy.deepcopy(population)
 
     def get_chromosome(self, index: int) -> Chromosome:
-        """get chromosome data at a given index"""
+        """get chromosome object at a given index"""
 
         if index < self.population_size and index >= 0:
             return copy.deepcopy(self.population[index])
@@ -83,13 +95,13 @@ class Population:
     def add_chromosome(self, chromosome: Chromosome) -> None:
         """add a chromosome at index -1"""
 
-        self.population.append(chromosome)
+        self.population.append(copy.deepcopy(chromosome))
         self.population_size += 1
     
     def replace(self, index: int, chromosome: Chromosome):
         """replace chromosome at a given index"""
 
-        self.population[index] = chromosome
+        self.population[index] = copy.deepcopy(chromosome)
 
     def __iter__(self) -> Iterator:
 
@@ -109,7 +121,7 @@ class FitnessFunction:
     """Interface class for a selection function"""    
 
     @abstractmethod
-    def get_ranking(self, chromosome: Chromosome) -> float:
+    def get_ranking(self, chromosome: Chromosome) -> Tuple[float, float]:
         pass
 
 
