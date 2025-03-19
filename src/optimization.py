@@ -1,4 +1,5 @@
-from src.helper import integrate
+from numpy._typing import NDArray
+from src.helper import integrate, splitter
 from src.openSees import Pinching4Model
 import numpy as np
 
@@ -6,37 +7,39 @@ from src.plot import HysteresisPlot
 from src.data import parameters as params 
 import random
 from src.genetic import Chromosome, FitnessFunction, Parameter, Population
-from typing import Dict, List, Tuple 
+from typing import Dict, Tuple 
 
 class SelectionFunction(FitnessFunction):
 
     def __init__(self, target_plot: HysteresisPlot):
 
         self.target_plot = target_plot
-        self.target_energy = self._load_target_energy()
 
-    def _load_target_energy(self) -> Dict[int, List[float]]:
-        """Returns a dictionary with key = cycle index
-        and value = energy upto a data point"""
+    def _interpolate(self, x: NDArray, y: NDArray, 
+                     x_target: NDArray, y_target: NDArray) -> Tuple[NDArray, NDArray]:
 
-        energy = {}
-        cycles = self.target_plot.cycle_number
+        x_subsets, y_subsets, order = splitter(y, x)
+        x_target_subsets, y_target_subsets, target_order = splitter(y_target, x_target)
+        y_interp = np.array([])
+        x_interp = np.array([])
 
-        for cycle in range(cycles):
-            energy[cycle+1] = []
+        assert len(x_subsets) == len(y_subsets) and len(x_target_subsets) == len(y_target_subsets)
+        assert len(order) == 3 and len(target_order) == 3
 
-            #test data
-            target_data = self.target_plot.get_cycle(cycle+1)
-            target_disp = [point[0] for point in target_data]
-            target_force = [point[1] for point in target_data]
+        for i in range(len(x_subsets)):
+            assert len(x_target_subsets[i]) == len(y_target_subsets[i])
 
-            for i in range(1, len(target_disp)):
-                target_disp_array = np.array(target_disp[0:i+1])
-                target_force_array = np.array(target_force[0:i+1])
-                target_energy = integrate(abs(target_force_array), target_disp_array)
-                energy[cycle+1].append(target_energy)
+            if order[i] == -1:
+                disp_dense = np.linspace(x_subsets[i].max(), x_subsets[i].min(), len(x_target_subsets[i]))
+                force_dense = np.interp(disp_dense, np.flip(x_subsets[i]), np.flip(y_subsets[i]))
+            else:
+                disp_dense = np.linspace(x_subsets[i].min(), x_subsets[i].max(), len(x_target_subsets[i]))
+                force_dense = np.interp(disp_dense, x_subsets[i], y_subsets[i])
 
-        return energy
+            x_interp = np.concatenate((x_interp, disp_dense))
+            y_interp = np.concatenate((y_interp, force_dense))
+
+        return (x_interp, y_interp)
 
     def get_ranking(self, chromosome: Chromosome) -> Tuple[float, float]:
         """returns the ranking of how close a chromosome
@@ -46,27 +49,46 @@ class SelectionFunction(FitnessFunction):
 
         avg_force = 0
         avg_energy = 0
-        pinching4 = Pinching4Model(chromosome)
+        pinching4 = Pinching4Model(chromosome) #generate a pinching4 model with chromosome
 
         cycles = pinching4.hysteresis.cycle_number
-        assert cycles == self.target_plot.cycle_number
+        assert cycles == self.target_plot.cycle_number #assert number of model cycles match test cycles
+
         for cycle in range(cycles):
             #model data
             data = pinching4.hysteresis.get_cycle(cycle+1) #cycle index starts from 1
-            force = [point[1] for point in data]
-            disp = [point[0] for point in data]
+            force = np.array([point[1] for point in data])
+            disp = np.array([point[0] for point in data])
 
             #test data
             target_data = self.target_plot.get_cycle(cycle+1)
-            target_disp = [point[0] for point in target_data]
-            target_force = [point[1] for point in target_data]
+            target_disp = np.array([point[0] for point in target_data])
+            target_force = np.array([point[1] for point in target_data])
 
-            # number of points is taken from the plot with the least number of points
-            self.points_num = len(disp) if len(disp) <= len(target_disp) else len(target_disp)
-            # print(f"test points: {len(target_disp)}, model points: {len(disp)}")
+            # number of points is taken from the plot with the most number of points
+            if len(disp) > len(target_disp):
+                #interpolate test data to match number of points with model data
+                target_disp, target_force = self._interpolate(target_disp, target_force, disp, force)
+                self.points_num = len(disp)
+
+            elif len(disp) < len(target_disp):
+                #interpolate model data to match number of points with test data
+                disp, force = self._interpolate(disp, force, target_disp, target_force) 
+                self.points_num = len(target_disp) 
+
+            else:
+                self.points_num = len(disp)
+
+            #assert x matches y
+            assert len(target_force) == len(target_disp)
+            assert len(force) == len(disp)
+
+            assert len(target_disp) == len(disp) #assert interpolation worked
+
+            # print(f"test points: {len(target_disp)}, model points: {len(disp)}, {self.points_num}")
 
             force_ranking = self._calculate_force_ranking(target_force, force)
-            energy_ranking = self._calculate_energy_ranking(cycle+1, disp, force)
+            energy_ranking = self._calculate_energy_ranking(target_disp, target_force, disp, force)
 
             avg_force += force_ranking
             avg_energy += energy_ranking
@@ -75,23 +97,27 @@ class SelectionFunction(FitnessFunction):
 
         return res
 
-    def _calculate_energy_ranking(self, cycle_number: int,
-                                  disp: List[float], force: List[float]) -> float:
+    def _calculate_energy_ranking(self, target_disp: NDArray, target_force: NDArray,
+                                  disp: NDArray, force: NDArray) -> float:
         numerator = 0
         denominator = 0
 
         for i in range(1, self.points_num):
 
-            disp_array = np.array(disp[0:i+1])
-            force_array = np.array(force[0:i+1])
-            energy = integrate(abs(force_array), disp_array)
+            disp_array = disp[0:i+1]
+            force_array = force[0:i+1]
+            energy = integrate(abs(force_array), disp_array) #calculate energy upto ith point
 
-            numerator += abs(self.target_energy[cycle_number][i-1] - energy) 
-            denominator += self.target_energy[cycle_number][i-1]
+            target_disp_array = target_disp[0:i+1]
+            target_force_array = target_force[0:i+1]
+            target_energy = integrate(abs(target_force_array), target_disp_array) #calculate energy upto ith point
+
+            numerator += abs(target_energy - energy) 
+            denominator += target_energy 
 
         return (numerator/denominator)
 
-    def _calculate_force_ranking(self, target_force: List[float], force: List[float]) -> float:
+    def _calculate_force_ranking(self, target_force: NDArray, force: NDArray)-> float:
         
         numerator = 0
         denominator = 0

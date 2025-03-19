@@ -43,9 +43,9 @@ class HysteresisPlot:
         
         self.data = copy.deepcopy(data)
         self.cycle_number = len(data) #number of cycles in the plot 
-        self.boundaries = self.extract_boundaries()
+        self.boundaries = self._extract_boundaries()
         
-    def extract_boundaries(self) -> List[float]:
+    def _extract_boundaries(self) -> List[float]:
 
         boundaries = []
 
@@ -69,9 +69,8 @@ class HysteresisPlot:
             raise Exception("displacement and force dont have the same length")
 
         self.data[self.cycle_number+1] = []
-        for i in range(len(disp)):
-            self.data[self.cycle_number+1].append([disp[i], force[i]])
-
+        self.data[self.cycle_number + 1] = [[d, f] for d, f in zip(disp, force)]
+        
         self.cycle_number += 1
 
     def __iter__(self):
@@ -81,14 +80,14 @@ class HysteresisPlot:
     def get_cycle(self, cycle_num: int) -> List[List[float]]:
         """return a specific cycle, cycle number starts from 1"""
 
-        return self.data[cycle_num]
+        return copy.deepcopy(self.data[cycle_num])
 
     def get_point(self, cycle_num: int, point_num: int) -> List[float]:
 
         """returns a data point in a specific cycle at a specific index
         in the form of [x, y]"""
 
-        return self.data[cycle_num][point_num]
+        return copy.deepcopy(self.data[cycle_num][point_num])
 
     def get_plot(self) -> Dict[str, List[float]]:
         """returns a dictionary with keys diplacement and moment
@@ -103,7 +102,7 @@ class HysteresisPlot:
             data["Displacement"] += [ point[0] for point in self.get_cycle(cycle)]
             data["Moment"] += [ point[1] for point in self.get_cycle(cycle)]
 
-        return data
+        return copy.deepcopy(data)
 
     def plot(self) -> None:
 

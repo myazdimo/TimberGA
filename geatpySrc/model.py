@@ -1,4 +1,5 @@
 from src.genetic import Chromosome
+import matplotlib.pyplot as plt
 import numpy as np
 
 from src.optimization import SelectionFunction
@@ -22,6 +23,8 @@ class OptimizationProblem(ea.Problem):
         ubin = [1] * Dim #upper bound inclusion
         self.target_plot = HysteresisPlot(prep_data("graph"))
         self.selection_function = SelectionFunction(self.target_plot)
+        self.energy_rankings = []
+        self.force_rankings = []
 
         #parent class constructor called to complete instantiation
 
@@ -55,6 +58,8 @@ class OptimizationProblem(ea.Problem):
 
             f1.append(force_ranking)
             f2.append(energy_ranking)
+            self.force_rankings.append(force_ranking)
+            self.energy_rankings.append(energy_ranking)
 
         f1 = np.array(f1).reshape(-1,1)
         f2 = np.array(f2).reshape(-1,1)

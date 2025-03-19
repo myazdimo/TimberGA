@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     problem = OptimizationProblem()
     pop_size = 100
-    generations = 10
+    generations = 50
 
     #construct the algorithm
     algorithm = ea.moea_NSGA2_templet( 
@@ -31,7 +31,13 @@ if __name__ == "__main__":
                    drawLog=True, #disable log plotting
                    saveFlag=False) #do not save results
 
-
+    plt.plot(problem.force_rankings)
+    plt.title("force ranking")
+    plt.show()
+    plt.figure()
+    plt.plot(problem.energy_rankings)
+    plt.title("energy ranking")
+    plt.show()
     result = Chromosome(parameters, problem.target_plot.boundaries) #result initialization
 
     print("Results:-")
@@ -42,6 +48,7 @@ if __name__ == "__main__":
         print(parameter+": ", res["Vars"][0][i])
         i += 1
 
+    plt.figure()
     problem.target_plot.plot() #plot target graph
     res_model = Pinching4Model(result)
     res_model.plot() #plot pinching4 solution model
