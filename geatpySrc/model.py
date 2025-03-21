@@ -36,9 +36,12 @@ class OptimizationProblem(ea.Problem):
                          lbin,
                          ubin)
 
+        self.curr_population = 0
+
     def evalVars(self, Vars): #objective function
 
-        print("evaluating population...")
+        self.curr_population += 1
+        print(f"evaluating population number {self.curr_population}")
         
         f1 = []
         f2 = []
