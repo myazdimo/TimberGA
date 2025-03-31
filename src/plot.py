@@ -51,11 +51,9 @@ class HysteresisPlot:
 
         for cycle_num in range(1, self.cycle_number+1):
             cycle = self.get_cycle(cycle_num)
-            force = [point[1] for point in cycle]
             disp = [point[0] for point in cycle]
 
-            force_peak = max(force)
-            disp_peak = disp[force.index(force_peak)] 
+            disp_peak = max(disp)
             boundaries.append(disp_peak)
 
         return boundaries
