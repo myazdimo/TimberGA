@@ -10,8 +10,8 @@ from model import OptimizationProblem
 if __name__ == "__main__":
 
     problem = OptimizationProblem()
-    pop_size = 100 #Population size
-    generations = 50
+    pop_size = 500 #Population size
+    generations = 30
 
     #construct the algorithm
     algorithm = ea.moea_NSGA2_templet( 
@@ -25,12 +25,16 @@ if __name__ == "__main__":
     algorithm.mutOper.Pm = 0.2   
     algorithm.recOper.XOVR = 0.9
 
-    res = ea.optimize(algorithm,
-                   verbose=False, #disable detailed output
-                   drawing=1, #Enable visualization
-                   outputMsg=True, #display output messages
-                   drawLog=True, #disable log plotting
-                   saveFlag=False) #do not save results
+    try:
+        res = ea.optimize(algorithm,
+                    verbose=False, #disable detailed output
+                    drawing=1, #Enable visualization
+                    outputMsg=True, #display output messages
+                    drawLog=True, #disable log plotting
+                    saveFlag=False) #do not save results
+
+    except KeyboardInterrupt:
+        print("Optimization interrupted by user")
 
     plt.plot(problem.force_rankings)
     plt.title("force ranking")

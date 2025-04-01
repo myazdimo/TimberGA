@@ -1,5 +1,7 @@
 import numpy as np
+from multiprocessing import Pool
 import geatpy as ea
+from numpy._typing import NDArray
 
 from src.genetic import Chromosome
 from src.optimization import SelectionFunction
@@ -8,7 +10,7 @@ from src.data import parameters
 
 class OptimizationProblem(ea.Problem):
 
-    def __init__(self, M=2):
+    def __init__(self, M=2, processors=10):
 
         name = 'Pinching4'
         Dim = 30 #number of decision variables
@@ -18,6 +20,7 @@ class OptimizationProblem(ea.Problem):
         ub = [ parameters[parameter].upper_bound for parameter in parameters] #upper bounds
         lbin = [1] * Dim #lower bound inclusion
         ubin = [1] * Dim #upper bound inclusion
+        self.processors = processors #number of processors used for computation
 
         self.target_plot = HysteresisPlot(prep_data("graph"))
         self.selection_function = SelectionFunction(self.target_plot)
@@ -35,28 +38,24 @@ class OptimizationProblem(ea.Problem):
                          ub,
                          lbin,
                          ubin)
+        self.curr_population = 0
 
     def evalVars(self, Vars): #objective function
 
-        print("evaluating population...")
+        self.curr_population += 1
+        print(f"evaluating population number {self.curr_population}")
         
-        f1 = []
-        f2 = []
-        
-        #Vars contains a population
-        for individual in Vars:
-            i=0
-            chromosome = Chromosome(parameters, self.target_plot.boundaries)
-            for parameter in chromosome:
-                chromosome.change_parameter_value(parameter, individual[i])
-                i += 1
+        pool = Pool(processes=self.processors)
+        rankings = pool.map(self._get_ranking, Vars) #Vars represents a single population
 
-            force_ranking, energy_ranking = self.selection_function.get_ranking(chromosome)
+        f1 = [ranking[0] for ranking in rankings]
+        f2 = [ranking[1] for ranking in rankings]
 
-            f1.append(force_ranking)
-            f2.append(energy_ranking)
-            self.force_rankings.append(force_ranking)
-            self.energy_rankings.append(energy_ranking)
+        best_force_ranking = min(f1) if (len(self.force_rankings) == 0 or self.force_rankings[-1] > min(f1)) else self.force_rankings[-1]
+        best_energy_ranking = min(f2) if (len(self.energy_rankings) == 0 or self.energy_rankings[-1] > min(f2)) else self.energy_rankings[-1]
+
+        self.force_rankings.append(best_force_ranking)
+        self.energy_rankings.append(best_energy_ranking)
 
         f1 = np.array(f1).reshape(-1,1)
         f2 = np.array(f2).reshape(-1,1)
@@ -65,3 +64,17 @@ class OptimizationProblem(ea.Problem):
         CV = np.hstack([-f1])
 
         return f, CV 
+
+    def _get_ranking(self, individual: NDArray):
+
+        i=0
+        chromosome = Chromosome(parameters, self.target_plot.boundaries)
+        for parameter in chromosome:
+            chromosome.change_parameter_value(parameter, individual[i])
+            i += 1
+
+        force_ranking, energy_ranking = self.selection_function.get_ranking(chromosome)
+
+        return (force_ranking, energy_ranking)
+
+
