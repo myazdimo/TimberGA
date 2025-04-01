@@ -34,3 +34,19 @@ parameters = {
     "gFLim": Parameter("constant", 0.01, 0.011),
     "gE": Parameter("constant", 10, 10.0001),
 }
+
+#parameters used to model the hysteretic uniaxial material used in opensees
+# refer to https://openseespydoc.readthedocs.io/en/latest/src/Hysteretic.html for information on parameters
+hysteretic_params = {
+    "p1": Parameter("variable", 0.6, 0.85),
+    "p2": Parameter("variable", 6, 8),
+    "p3": Parameter("variable", 22, 24),
+    "n1": Parameter("variable", 24, 25),
+    "n2": Parameter("variable", 0.0001, 0.0003),
+    "n3": Parameter("variable", 0.04, 0.06),
+    "pinchx": Parameter("variable", 0.1, 0.25),
+    "pinchy": Parameter("variable", 0.25, 0.4),
+    "damage1": Parameter("constant", 0.7, 0.71),
+    "damage2": Parameter("constant", 0.155, 0.1551),
+    "beta": Parameter("constant", 0.01012, 0.010121),
+}
