@@ -10,8 +10,8 @@ from model import OptimizationProblem
 if __name__ == "__main__":
 
     problem = OptimizationProblem()
-    pop_size = 500 #Population size
-    generations = 30
+    pop_size = 200 #Population size
+    generations = 20
 
     #construct the algorithm
     algorithm = ea.moea_NSGA2_templet( 
@@ -44,17 +44,6 @@ if __name__ == "__main__":
     plt.plot(problem.energy_rankings)
     plt.title("energy ranking")
     plt.show()
-
-    plt.figure()
-    plt.plot(sorted(problem.energy_rankings, reverse=True))
-    plt.title("energy ranking ordered")
-    plt.show()
-
-    plt.figure()
-    plt.plot(sorted(problem.force_rankings, reverse=True))
-    plt.title("force ranking ordered")
-    plt.show()
-
 
     result = Chromosome(parameters, problem.target_plot.boundaries) #result initialization
 

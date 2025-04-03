@@ -13,7 +13,7 @@ class OptimizationProblem(ea.Problem):
     def __init__(self, M=2, processors=10):
 
         name = 'Pinching4'
-        Dim = 30 #number of decision variables
+        Dim = 38 #number of decision variables
         maxormins = [1] * M # Initialize maxormins (objective optimization flag list, 1: minimize the objective; -1: maximize the objective)
         varTypes = [0] * Dim # Initialize varTypes (types of decision variables, 0: real number; 1: integer) 
         lb = [ parameters[parameter].lower_bound for parameter in parameters] #lower bounds
@@ -22,7 +22,7 @@ class OptimizationProblem(ea.Problem):
         ubin = [1] * Dim #upper bound inclusion
         self.processors = processors #number of processors used for computation
 
-        self.target_plot = HysteresisPlot(prep_data("graph"))
+        self.target_plot = HysteresisPlot(prep_data("graph2"))
         self.selection_function = SelectionFunction(self.target_plot)
         self.energy_rankings = [] #list of energy rankings in order
         self.force_rankings = [] #list of force rankings in order

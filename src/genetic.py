@@ -1,12 +1,15 @@
 from abc import abstractmethod
 import copy
-from typing import Callable, Iterator, List, Dict, Tuple
+from typing import Callable, Iterator, List, Dict, Optional, Tuple
 
 class Parameter:
     """Parameter data class
     Restrictions and value associated with a parameter"""
 
-    def __init__(self, nature: str, lower_bound: float, upper_bound: float):
+    def __init__(self, nature: str, 
+                 lower_bound: Optional[float] = None, 
+                 upper_bound: Optional[float] = None, 
+                 value: Optional[float] = None):
 
         self.value = 0
         self.nature = nature #constant or variable
@@ -14,8 +17,14 @@ class Parameter:
         if self.nature not in ["variable", "constant"]:
             raise ValueError(f"{self.nature} nature is not allowed. Only 'variable' or 'constant'")
 
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
+        if self.nature == "variable":
+            assert lower_bound != None and upper_bound != None
+            self.lower_bound = lower_bound
+            self.upper_bound = upper_bound
+        else:
+            assert value is not None
+            self.lower_bound = value
+            self.upper_bound = value + 0.000001 # geatpy requires upper bound to be bigger than lower bound
 
     def set_value(self, value: float) -> None:
 
@@ -28,6 +37,18 @@ class Parameter:
     def set_upper_bound(self, bound: float) -> None:
 
         self.upper_bound = bound
+
+    def __str__(self):
+
+        msg = f"value: {self.value},"
+        if self.nature == "variable":
+            msg += f"nature: variable, lower_bound: {self.lower_bound}, upper_bound: {self.upper_bound}"
+        else:
+            msg += f"nature: constant, constant_value: {self.lower_bound}"
+
+        return msg
+
+
 
 
 class Chromosome:
