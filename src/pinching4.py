@@ -421,7 +421,6 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
     data = {
         "Displacement": Disp,
         "Moment": Force}
-    print(len(data["Displacement"]))
 
     return data
 
