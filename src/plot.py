@@ -1,9 +1,10 @@
 import copy
+import math
 import os
 import matplotlib.pyplot as plt
 from typing import List, Dict 
 
-def prep_data(dir_path: str) -> Dict[int, List[List[float]]]:
+def prep_data(dir_path: str, is_degrees=False) -> Dict[int, List[List[float]]]:
     """returns a dictionary with key = cycle index
     and value = list of data points where each element is
     in the form of [x, y]"""
@@ -12,11 +13,11 @@ def prep_data(dir_path: str) -> Dict[int, List[List[float]]]:
     num = len(os.listdir(dir_path))
     for i in range(1, num+1):
         
-        data[i] = extract(f"{dir_path}/{i}.txt")
+        data[i] = extract(f"{dir_path}/{i}.txt", is_degrees)
 
     return data
 
-def extract(path) -> List:
+def extract(path, is_degrees) -> List:
     """returns the collection of points associated
     with a cycle"""
     
@@ -28,6 +29,9 @@ def extract(path) -> List:
     for line in lines[1:]:
         point = line.strip().split(',')
         point = [ float(number.strip()) for number in point]
+        if is_degrees:
+            # convert x axis from degrees to radians
+            point = [math.radians(point[0]), point[1]] 
         points.append(point) 
 
     return points

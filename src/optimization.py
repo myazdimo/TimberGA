@@ -27,7 +27,8 @@ class SelectionFunction(FitnessFunction):
         x_interp = np.array([])
 
         assert len(x_subsets) == len(y_subsets) and len(x_target_subsets) == len(y_target_subsets)
-        assert len(order) == 3 and len(target_order) == 3
+        assert len(target_order) == 3
+        assert len(order) == 3
 
         for i in range(len(x_subsets)):
             assert len(x_target_subsets[i]) == len(y_target_subsets[i])
