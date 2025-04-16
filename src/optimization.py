@@ -1,4 +1,5 @@
 from numpy._typing import NDArray
+import sys
 from typing import Dict, Tuple 
 import numpy as np
 import random
@@ -59,7 +60,8 @@ class SelectionFunction(FitnessFunction):
         pinching4 = Pinching4Model(chromosome) #generate a pinching4 model with chromosome
 
         cycles = pinching4.hysteresis.cycle_number
-        assert cycles == self.target_plot.cycle_number #assert number of model cycles match test cycles
+        if cycles != self.target_plot.cycle_number: 
+            return (sys.float_info.max, sys.float_info.max) #return biggest number to indicate low ranking
 
         for cycle in range(cycles):
             #model data
@@ -91,8 +93,6 @@ class SelectionFunction(FitnessFunction):
             assert len(force) == len(disp)
 
             assert len(target_disp) == len(disp) #assert interpolation worked
-
-            # print(f"test points: {len(target_disp)}, model points: {len(disp)}, {self.points_num}")
 
             force_ranking = self._calculate_force_ranking(target_force, force)
             energy_ranking = self._calculate_energy_ranking(target_disp, target_force, disp, force)
@@ -131,7 +131,7 @@ class SelectionFunction(FitnessFunction):
         denominator = 0
         for i in range(self.points_num):
             numerator += abs(target_force[i] - force[i])
-            denominator += target_force[i]
+            denominator += abs(target_force[i])
 
         return (numerator/denominator)
 
