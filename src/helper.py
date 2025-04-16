@@ -61,13 +61,14 @@ def splitter(y: NDArray, x: NDArray) -> Tuple[List[NDArray], List[NDArray], List
 
 def integrate(y: NDArray, x: NDArray) -> float:
 
-    x_subsets, y_subsets, order = splitter(y, x)
+    x_subsets, y_subsets, _ = splitter(y, x)
 
     area = 0
     for i in range(len(x_subsets)):
         #calculate area for each subset
         area += abs(np.trapz(y_subsets[i],x_subsets[i]))
 
+    assert area > 0
     return area
 
 

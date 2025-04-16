@@ -62,8 +62,8 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
     #Beam TO Column
     ###########################
 
-    R_F=1.5  # Reinforced factor for force
-    R_D=2.0  # Reinforced factor for displacements
+    R_F=1  # Reinforced factor for force
+    R_D=1  # Reinforced factor for displacements
 
     #Unreinforced
     # ePf1 =0.7852
@@ -149,8 +149,8 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
     uniaxialMaterial('Pinching4', 100, 
                         parse("ePf1"), parse("ePd1"), parse("ePf2"), parse("ePd2"), parse("ePf3"), parse("ePd3"), parse("ePf4"), parse("ePd4"), 
                         parse("eNf1"), parse("eNd1"), parse("eNf2"), parse("eNd2"), parse("eNf3"), parse("eNd3"), parse("eNf4"), parse("eNd4"),
-                        parse("rDispP"), parse("fFoceP"), parse("uForceP"),
-                        parse("rDispN"), parse("fFoceN"), parse("uForceN"),
+                        parse("rDispP"), parse("rForceP"), parse("uForceP"),
+                        parse("rDispN"), parse("rForceN"), parse("uForceN"),
                         parse("gK1"), parse("gK2"), parse("gK3"), parse("gK4"), parse("gKLim"),
                         parse("gD1"), parse("gD2"), parse("gD3"), parse("gD4"), parse("gDLim"),
                         parse("gF1"), parse("gF2"), parse("gF3"), parse("gF4"), parse("gFLim"),

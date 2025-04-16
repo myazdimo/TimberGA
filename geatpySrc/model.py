@@ -22,7 +22,7 @@ class OptimizationProblem(ea.Problem):
         ubin = [1] * Dim #upper bound inclusion
         self.processors = processors #number of processors used for computation
 
-        self.target_plot = HysteresisPlot(prep_data("graph2", is_degrees=True))
+        self.target_plot = HysteresisPlot(prep_data("graph3", is_degrees=True))
         self.selection_function = SelectionFunction(self.target_plot)
         self.energy_rankings = [] #list of energy rankings in order
         self.force_rankings = [] #list of force rankings in order
@@ -44,7 +44,17 @@ class OptimizationProblem(ea.Problem):
 
         self.curr_population += 1
         print(f"evaluating population number {self.curr_population}")
-        
+
+        ePf1 = Vars[:, [0]]
+        ePf2 = Vars[:, [1]]
+        ePf3 = Vars[:, [2]]
+        ePf4 = Vars[:, [3]]
+
+        ePd1 = Vars[:, [4]]
+        ePd2 = Vars[:, [5]]
+        ePd3 = Vars[:, [6]]
+        ePd4 = Vars[:, [7]]
+
         pool = Pool(processes=self.processors)
         rankings = pool.map(self._get_ranking, Vars) #Vars represents a single population
 
@@ -61,7 +71,13 @@ class OptimizationProblem(ea.Problem):
         f2 = np.array(f2).reshape(-1,1)
         f = np.hstack([f1, f2])
 
-        CV = np.hstack([-f1])
+        CV = np.hstack([ 
+                        ePf1 - ePf2,
+                        ePf2 - ePf3,
+                        ePf3 - ePf4,
+                        ePd1 - ePd2,
+                        ePd2 - ePd3,
+                        ePd3 - ePd4])
 
         return f, CV 
 

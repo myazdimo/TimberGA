@@ -37,12 +37,14 @@ if __name__ == "__main__":
         print("Optimization interrupted by user")
 
     plt.plot(problem.force_rankings)
-    plt.title("force ranking")
+    plt.xlabel("Iterations")
+    plt.ylabel("CFE")
     plt.show()
 
     plt.figure()
     plt.plot(problem.energy_rankings)
-    plt.title("energy ranking")
+    plt.xlabel("Iterations")
+    plt.ylabel("CEE")
     plt.show()
 
     result = Chromosome(parameters, problem.target_plot.boundaries) #result initialization
