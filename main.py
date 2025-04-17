@@ -1,6 +1,6 @@
 from src.plot import HysteresisPlot, prep_data
 
-target_plot = HysteresisPlot(prep_data("graph2", is_degrees=True))
+target_plot = HysteresisPlot(prep_data("graph3", is_degrees=True))
 target_plot.plot()
 
 boundaries = target_plot.boundaries
