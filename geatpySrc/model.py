@@ -22,8 +22,7 @@ class OptimizationProblem(ea.Problem):
         ubin = [1] * Dim #upper bound inclusion
         self.processors = processors #number of processors used for computation
 
-        self.target_plot = HysteresisPlot(prep_data("graph3", is_degrees=True))
-        assert self.target_plot.cycle_number == 3
+        self.target_plot = HysteresisPlot(prep_data("graph4", is_degrees=False))
         self.selection_function = SelectionFunction(self.target_plot)
         self.energy_rankings = [] #list of energy rankings in order
         self.force_rankings = [] #list of force rankings in order
@@ -75,7 +74,6 @@ class OptimizationProblem(ea.Problem):
         CV = np.hstack([ 
                         ePf1 - ePf2,
                         ePf2 - ePf3,
-                        ePf3 - ePf4,
                         ePd1 - ePd2,
                         ePd2 - ePd3,
                         ePd3 - ePd4])
