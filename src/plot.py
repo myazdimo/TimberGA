@@ -47,8 +47,8 @@ class HysteresisPlot:
         
         self.data = copy.deepcopy(data)
         self.cycle_number = len(data) #number of cycles in the plot 
-        self.boundaries = self._extract_boundaries()
         self.negative_envelope = []
+        self.boundaries = self._extract_boundaries()
         
     def _extract_boundaries(self) -> List[float]:
 
@@ -59,7 +59,9 @@ class HysteresisPlot:
             disp = [point[0] for point in cycle]
 
             disp_peak = max(disp)
+            neg_disp_peak = min(disp)
             boundaries.append(disp_peak)
+            self.negative_envelope.append(neg_disp_peak)
 
         return boundaries
 
