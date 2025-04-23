@@ -1,6 +1,6 @@
 from src.plot import HysteresisPlot, prep_data
 
-target_plot = HysteresisPlot(prep_data("graph3", is_degrees=True))
+target_plot = HysteresisPlot(prep_data("graph4"))
 target_plot.plot()
 
 boundaries = target_plot.boundaries
@@ -67,8 +67,8 @@ element('elasticBeamColumn', 2, 4,2,  0.0504, 12.800e6, 3.3e-4, 1)
 #Beam TO Column
 ###########################
 
-R_F=1.5  # Reinforced factor for force
-R_D=2.0  # Reinforced factor for displacements
+R_F=1.0  # Reinforced factor for force
+R_D=1.0  # Reinforced factor for displacements
 
 #Unreinforced
 # ePf1 =0.7852
@@ -81,15 +81,15 @@ R_D=2.0  # Reinforced factor for displacements
 # ePd4 =0.2901
 
 #Reinforced with STS
-ePf1 =0.7852*R_F
-ePd1 =0.000241*R_D
-ePf2 =7.3124074*R_F
-ePd2 =0.0521*R_D
-ePf3 =23.432*R_F
-ePd3 =0.1822*R_D
-ePf4 =24.691*R_F
-ePd4 =0.2901*R_D
-
+# ePf1 =0.7852
+# ePd1 =0.000241
+# ePf2 =7.3124074
+# ePd2 =0.0521
+# ePf3 =23.432
+# ePd3 =0.1822
+# ePf4 =24.691
+# ePd4 =0.2901
+#
 
 ###########################
 #Column to Base
@@ -107,14 +107,14 @@ ePd4 =0.2901*R_D
 
 #Reinforced with STS
 
-# ePf1 =0.7865*R_F
-# ePd1 =0.000137*R_D
-# ePf2 =61.2074*R_F
-# ePd2 =0.0416*R_D
-# ePf3 =63.224*R_F
-# ePd3 =0.1709*R_D
-# ePf4 =54.712*R_F
-# ePd4 =0.2595*R_D
+ePf1 =52
+ePd1 =0.01
+ePf2 =92
+ePd2 =0.05
+ePf3 =114.5
+ePd3 =0.08
+ePf4 =115.8
+ePd4 =0.108
 
 eNf1 =-ePf1
 eNd1 =-ePd1
@@ -125,11 +125,11 @@ eNd3 =-ePd3
 eNf4 =-ePf4
 eNd4 =-ePd4
 
-rDispP =0.7
-rForceP =0.155
+rDispP =0.1
+rForceP =0.1
 uForceP =0.01012
-rDispN =0.7
-rForceN =0.155
+rDispN =0.07
+rForceN =0.15
 uForceN =0.01012
 gK1 =1.0
 gK2 =0.5

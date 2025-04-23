@@ -2,7 +2,7 @@ import copy
 import math
 import os
 import matplotlib.pyplot as plt
-from typing import List, Dict 
+from typing import List, Dict, Tuple 
 
 def prep_data(dir_path: str, is_degrees=False) -> Dict[int, List[List[float]]]:
     """returns a dictionary with key = cycle index
@@ -61,6 +61,18 @@ class HysteresisPlot:
             boundaries.append(disp_peak)
 
         return boundaries
+
+    def envelope(self) -> List[float]:
+        """return y axis points of envelope curve"""
+
+        envelope_points = []
+        data = self.get_plot()
+        for boundary in self.boundaries:
+            index = data["Displacement"].index(boundary)
+            envelope_point = data["Moment"][index]
+            envelope_points.append(envelope_point)
+
+        return copy.deepcopy(envelope_points)
 
     def add_cycle(self, disp: List[float], force: List[float]):
 

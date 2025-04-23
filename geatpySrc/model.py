@@ -22,7 +22,7 @@ class OptimizationProblem(ea.Problem):
         ubin = [1] * Dim #upper bound inclusion
         self.processors = processors #number of processors used for computation
 
-        self.target_plot = HysteresisPlot(prep_data("graph4", is_degrees=False))
+        self.target_plot = HysteresisPlot(prep_data("graph4"))
         self.selection_function = SelectionFunction(self.target_plot)
         self.energy_rankings = [] #list of energy rankings in order
         self.force_rankings = [] #list of force rankings in order
@@ -48,7 +48,6 @@ class OptimizationProblem(ea.Problem):
         ePf1 = Vars[:, [0]]
         ePf2 = Vars[:, [1]]
         ePf3 = Vars[:, [2]]
-        ePf4 = Vars[:, [3]]
 
         ePd1 = Vars[:, [4]]
         ePd2 = Vars[:, [5]]

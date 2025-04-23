@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from src.plot import HysteresisPlot
 from src.pinching4 import openseesModel
+import matplotlib.pyplot as plt
 from src.genetic import Chromosome
 
 class Pinching4Model():
@@ -50,3 +51,5 @@ class Pinching4Model():
 
         #plot using pinching4 function
         openseesModel(self.parse, self.chromosome.boundaries, plotting=True)
+        envelope = self.hysteresis.envelope()
+        plt.plot(self.chromosome.boundaries, envelope, 'r.-',markersize=8,linewidth=1.5)

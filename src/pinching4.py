@@ -408,8 +408,6 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
         # Plotting the force vs. displacement
         plt.figure(1)
         plt.plot(Disp, Force,color='black',linestyle='--',linewidth=1)
-        plt.plot(New_Env_D,New_Env_F,'r.-',markersize=8,linewidth=1.5)
-        plt.plot(New_Env_D_N,New_Env_F_N,'r.-',markersize=8,linewidth=1.5)
         plt.xlabel('Rotation (rad)')
         plt.ylabel('Moment (kN.m)')
         plt.title('Moment vs. Rotation of Pinching4 for Bolted Connection')
