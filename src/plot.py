@@ -86,6 +86,7 @@ class HysteresisPlot:
         self.data[self.cycle_number + 1] = [[d, f] for d, f in zip(disp, force)]
         
         self.cycle_number += 1
+        self.boundaries.append(max(disp))
 
     def __iter__(self):
 
