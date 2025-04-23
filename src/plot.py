@@ -48,6 +48,7 @@ class HysteresisPlot:
         self.data = copy.deepcopy(data)
         self.cycle_number = len(data) #number of cycles in the plot 
         self.boundaries = self._extract_boundaries()
+        self.negative_envelope = []
         
     def _extract_boundaries(self) -> List[float]:
 
@@ -62,17 +63,23 @@ class HysteresisPlot:
 
         return boundaries
 
-    def envelope(self) -> List[float]:
+    def envelope(self) -> Tuple[List[float], List[float]]:
         """return y axis points of envelope curve"""
 
-        envelope_points = []
+        p_envelope_points = []
         data = self.get_plot()
         for boundary in self.boundaries:
             index = data["Displacement"].index(boundary)
-            envelope_point = data["Moment"][index]
-            envelope_points.append(envelope_point)
+            p_envelope_point = data["Moment"][index]
+            p_envelope_points.append(p_envelope_point)
 
-        return copy.deepcopy(envelope_points)
+        n_envelope_points = []
+        for boundary in self.negative_envelope:
+            index = data["Displacement"].index(boundary)
+            n_envelope_point = data["Moment"][index]
+            n_envelope_points.append(n_envelope_point)
+
+        return (copy.deepcopy(n_envelope_points), copy.deepcopy(p_envelope_points))
 
     def add_cycle(self, disp: List[float], force: List[float]):
 
@@ -87,6 +94,7 @@ class HysteresisPlot:
         
         self.cycle_number += 1
         self.boundaries.append(max(disp))
+        self.negative_envelope.append(min(disp))
 
     def __iter__(self):
 
