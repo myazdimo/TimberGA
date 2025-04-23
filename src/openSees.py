@@ -52,4 +52,4 @@ class Pinching4Model():
         #plot using pinching4 function
         openseesModel(self.parse, self.chromosome.boundaries, plotting=True)
         envelope = self.hysteresis.envelope()
-        plt.plot(self.chromosome.boundaries, envelope, 'r.-',markersize=8,linewidth=1.5)
+        plt.plot(self.hysteresis.boundaries, envelope, 'r.-',markersize=8,linewidth=1.5)
