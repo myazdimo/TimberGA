@@ -21,6 +21,12 @@ Upon completion, the program outputs a set of optimized parameters along with tw
 - Plot of the best energy ranking achieved as a function of iterations.
 - A comparison plot of test data and model data, where the model data is generated using the optimal parameter set.
 
+## Requirements
+All library dependencies can be installed by running the command:
+
+```sh
+pip install -r requirements.txt
+```
 ## Usage
 To achieve a set of optimized parameters, follow these steps: -
 
