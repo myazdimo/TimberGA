@@ -50,7 +50,7 @@ import json
 parameters: Dict[str, Parameter] = {}
 
 # Load JSON file
-with open("parameters.json", "r") as file:
+with open("../parameters.json", "r") as file:
     data = json.load(file)
 
 for name, details in data["parameters"].items():
