@@ -2,7 +2,7 @@
 ## Introduction
 The program is designed to assist engineers and researchers in calibrating the Pinching4 model to fit their test data.
 
-The program begins by receiving a user-provided hysteresis plot (the “test data”), which is then decomposed into individual loading cycles. Additionally, the user specifies the upper and lower bounds for the parameters to optimization while also defining which parameters remain constant. For constant parameters, the user must explicitly provide their values.
+The program begins by receiving a user-provided hysteresis plot (the “test data”), which is then decomposed into individual loading cycles. Additionally, the user specifies the upper and lower bounds for the parameters to optimizate while also defining which parameters remain constant. For constant parameters, the user must explicitly provide their values.
 
 Library `geatpy` (https://github.com/geatpy-dev/geatpy) is used as the toolbox for the genetic algortihm
 
