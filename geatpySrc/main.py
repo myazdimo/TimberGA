@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pandas as pd
 import geatpy as ea
 import sys
 
@@ -39,17 +40,34 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Optimization interrupted by user")
 
+    # Force ranking
     plt.figure()
     plt.plot(problem.force_rankings)
     plt.xlabel("Iterations")
     plt.ylabel("CFE")
     plt.show()
 
+    data = {
+        'Iterations': range(1, generations+1),
+        'CFE': problem.force_rankings 
+    }
+    df = pd.DataFrame(data)
+    df.to_excel("results/cfe.xlsx", index=False)
+
+    # Energy ranking
     plt.figure()
     plt.plot(problem.energy_rankings)
     plt.xlabel("Iterations")
     plt.ylabel("CEE")
     plt.show()
+
+    data = {
+        'Iterations': range(1, generations+1),
+        'CEE': problem.energy_rankings 
+    }
+    df = pd.DataFrame(data)
+    df.to_excel("results/cee.xlsx", index=False)
+
 
     result = Chromosome(parameters, problem.target_plot.boundaries) #result initialization
 
@@ -64,8 +82,13 @@ if __name__ == "__main__":
     force_ranking, energy_ranking = problem.selection_function.get_ranking(result)
     print("CFE: ", force_ranking)
     print("CEE: ", energy_ranking)
+
     plt.figure()
     problem.target_plot.plot() #plot target graph
     res_model = Pinching4Model(result)
     res_model.plot() #plot pinching4 solution model
     plt.show()
+
+    data = res_model.hysteresis.get_plot()
+    df = pd.DataFrame(data)
+    df.to_excel("results/model_data.xlsx", index=False)
