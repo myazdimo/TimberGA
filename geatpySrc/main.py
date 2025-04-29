@@ -92,3 +92,7 @@ if __name__ == "__main__":
     data = res_model.hysteresis.get_plot()
     df = pd.DataFrame(data)
     df.to_excel("results/model_data.xlsx", index=False)
+
+    data = problem.target_plot.get_plot()
+    df = pd.DataFrame(data)
+    df.to_excel("results/test_data.xlsx", index=False)
