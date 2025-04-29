@@ -408,7 +408,7 @@ plt.plot(New_Env_D,New_Env_F,'r.-',markersize=8,linewidth=1.5)
 plt.plot(New_Env_D_N,New_Env_F_N,'r.-',markersize=8,linewidth=1.5)
 plt.xlabel('Rotation (rad)')
 plt.ylabel('Moment (kN.m)')
-plt.title('Moment vs. Rotation of Pinching4 for Bolted Connection')
+plt.title('Moment vs. Rotation of Pinching4')
 plt.grid(True)
 
 

@@ -410,7 +410,7 @@ def openseesModel(parse: Callable, boundaries: List, plotting=False) -> Dict[str
         plt.plot(Disp, Force,color='black',linestyle='--',linewidth=1)
         plt.xlabel('Rotation (rad)')
         plt.ylabel('Moment (kN.m)')
-        plt.title('Moment vs. Rotation of Pinching4 for Bolted Connection')
+        plt.title('Moment vs. Rotation of Pinching4')
         plt.grid(True)
 
     # opsv.plot_model()

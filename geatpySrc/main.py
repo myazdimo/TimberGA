@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import geatpy as ea
+import sys
+
+sys.path.append('C:/Users/myazdimo/Downloads/TMRF_PLATFORM')
 
 from src.openSees import Pinching4Model
 from src.data import parameters
