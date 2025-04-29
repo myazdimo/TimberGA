@@ -39,6 +39,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Optimization interrupted by user")
 
+    plt.figure()
     plt.plot(problem.force_rankings)
     plt.xlabel("Iterations")
     plt.ylabel("CFE")
@@ -60,6 +61,9 @@ if __name__ == "__main__":
         print(parameter+": ", res["Vars"][0][i])
         i += 1
 
+    force_ranking, energy_ranking = problem.selection_function.get_ranking(result)
+    print("CFE: ", force_ranking)
+    print("CEE: ", energy_ranking)
     plt.figure()
     problem.target_plot.plot() #plot target graph
     res_model = Pinching4Model(result)
