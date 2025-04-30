@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import geatpy as ea
 import sys
+import os
 
 sys.path.append('C:/Users/myazdimo/Downloads/TMRF_PLATFORM')
 
@@ -14,8 +15,8 @@ from model import OptimizationProblem
 if __name__ == "__main__":
 
     problem = OptimizationProblem()
-    pop_size = 200 #Population size
-    generations = 20
+    pop_size = 10 #Population size
+    generations = 5
 
     #construct the algorithm
     algorithm = ea.moea_NSGA2_templet( 
@@ -39,6 +40,10 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         print("Optimization interrupted by user")
+    
+    dirs = os.listdir("C:/Users/myazdimo/Downloads/TMRF_PLATFORM/geatpySrc")
+    print(dirs)
+    if "results" not in dirs: os.mkdir("results")
 
     # Force ranking
     plt.figure()
