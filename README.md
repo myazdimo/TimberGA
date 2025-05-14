@@ -28,7 +28,7 @@ All library dependencies can be installed by running the command:
 pip install -r requirements.txt
 ```
 
-Note: If you run into an issue while installing `geatpy`, directly downloading the 2.7.0 version from their [website](https://pypi.org/project/geatpy/#files), and pip install it using that wheel.
+Note: If you run into an issue while installing `geatpy`, directly download the 2.7.0 version from their [website](https://pypi.org/project/geatpy/#files), and pip install it using that wheel.
 
 
 ## Usage
