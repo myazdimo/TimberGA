@@ -4,7 +4,8 @@ import geatpy as ea
 import sys
 import os
 
-sys.path.append('C:/Users/myazdimo/Downloads/TMRF_PLATFORM')
+# sys.path.append('C:/Users/myazdimo/Downloads/TMRF_PLATFORM')
+sys.path.append('/Users/ritish/Desktop/work/TMRF_PLATFORM')
 
 from src.openSees import Pinching4Model
 from src.data import parameters
@@ -15,8 +16,8 @@ from model import OptimizationProblem
 if __name__ == "__main__":
 
     problem = OptimizationProblem()
-    pop_size = 10 #Population size
-    generations = 5
+    pop_size = 200 #Population size
+    generations = 20
 
     #construct the algorithm
     algorithm = ea.moea_NSGA2_templet( 
@@ -41,7 +42,8 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Optimization interrupted by user")
     
-    dirs = os.listdir("C:/Users/myazdimo/Downloads/TMRF_PLATFORM/geatpySrc")
+    # dirs = os.listdir("C:/Users/myazdimo/Downloads/TMRF_PLATFORM/geatpySrc")
+    dirs = os.listdir("/Users/ritish/Desktop/work/TMRF_PLATFORM/geatpySrc")
     print(dirs)
     if "results" not in dirs: os.mkdir("results")
 

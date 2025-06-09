@@ -9,9 +9,11 @@ class Parameter:
     def __init__(self, nature: str, 
                  lower_bound: Optional[float] = None, 
                  upper_bound: Optional[float] = None, 
-                 value: Optional[float] = None):
+                 value: float = 0):
+        
+        if value is not None:
+            self.value = value
 
-        self.value = 0
         self.nature = nature #constant or variable
 
         if self.nature not in ["variable", "constant"]:
