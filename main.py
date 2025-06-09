@@ -1,9 +1,65 @@
 from src.plot import HysteresisPlot, prep_data
+from src.genetic import Parameter, Chromosome
+from src.optimization import SelectionFunction
 
-target_plot = HysteresisPlot(prep_data("graph4"))
+
+graphNumber = "graph4"
+
+
+target_plot = HysteresisPlot(prep_data(graphNumber, is_degrees=False))
+target_displacement = target_plot.get_plot()["Displacement"]
+target_force = target_plot.get_plot()["Moment"]
 target_plot.plot()
 
 boundaries = target_plot.boundaries
+
+chromosome = {
+    "ePf1" : Parameter(nature="variable", value=50.52697032120241, lower_bound=49, upper_bound=54),
+    "ePf2" : Parameter(nature="variable", value=90.14339556423617, lower_bound=90, upper_bound=97),
+    "ePf3": Parameter(nature="variable", value=114.78401391686505, lower_bound=114, upper_bound=115.5),
+    "ePf4": Parameter(nature="variable", value=115.64619891964476, lower_bound=115, upper_bound=117),
+    "ePd1": Parameter(nature="variable", value=0.012, lower_bound=0.007, upper_bound=0.012),
+    "ePd2": Parameter(nature="variable", value=0.04285714285714286, lower_bound=0.03, upper_bound=0.06),
+    "ePd3": Parameter(nature="variable", value=0.08917808219178082, lower_bound=0.06, upper_bound=0.09),
+    "ePd4": Parameter(nature="variable", value=0.10105882352941176, lower_bound=0.09, upper_bound=0.11),
+    "eNf1": Parameter(nature="variable", value=-49.46021210040436, lower_bound=-54, upper_bound=-49),
+    "eNf2": Parameter(nature="variable", value=-90.89643017906326, lower_bound=-95, upper_bound=-88),
+    "eNf3": Parameter(nature="variable", value=-113.95196386608478, lower_bound=-114.5, upper_bound=-112),
+    "eNf4": Parameter(nature="variable", value=-115.05694753868221, lower_bound=-117, upper_bound=-115),
+    "eNd1": Parameter(nature="variable", value=-0.011761904761904762, lower_bound=-0.012, upper_bound=-0.007),
+    "eNd2": Parameter(nature="variable", value=-0.05759295499021526, lower_bound=-0.06, upper_bound=-0.03),
+    "eNd3": Parameter(nature="variable", value=-0.09, lower_bound=-0.09, upper_bound=-0.06),
+    "eNd4": Parameter(nature="variable", value=-0.09141176470588235, lower_bound=-0.11, upper_bound=-0.09),
+    "rDispP": Parameter(nature="variable", value=0.08344422700587084, lower_bound=0.04, upper_bound=0.15),
+    "rForceP": Parameter(nature="variable", value=0.09385518590998043, lower_bound=0.08, upper_bound=0.12),
+    "uForceP": Parameter(nature="variable", value=0.008931301587301588, lower_bound=0.008096, upper_bound=0.012144),
+    "rDispN": Parameter(nature="variable", value=0.0785518590998043, lower_bound=0.04, upper_bound=0.09),
+    "rForceN": Parameter(nature="variable", value=0.1253816046966732, lower_bound=0.12, upper_bound=0.17),
+    "uForceN": Parameter(nature="variable", value=0.008931301587301588, lower_bound=0.008096, upper_bound=0.012144),
+    "gK1": Parameter(nature="constant", value=1.000001),
+    "gK2": Parameter(nature="constant", value=0.500001),
+    "gK3": Parameter(nature="constant", value=0.5),
+    "gK4": Parameter(nature="constant", value=0.500001),
+    "gKLim": Parameter(nature="constant", value=0.01),
+    "gD1": Parameter(nature="constant", value=0.5),
+    "gD2": Parameter(nature="constant", value=0.5),
+    "gD3": Parameter(nature="constant", value=1.0),
+    "gD4": Parameter(nature="constant", value=0.8),
+    "gDLim": Parameter(nature="constant", value=0.200001),
+    "gF1": Parameter(nature="constant", value=1.000001),
+    "gF2": Parameter(nature="constant", value=0),
+    "gF3": Parameter(nature="constant", value=1.0),
+    "gF4": Parameter(nature="constant", value=1.000001),
+    "gFLim": Parameter(nature="constant", value=0.01),
+    "gE": Parameter(nature="constant", value=10.000001)
+    }
+
+optimizedParameters = Chromosome(chromosome=chromosome, boundaries=boundaries)
+selectionFunction = SelectionFunction(target_plot)
+x = selectionFunction.get_ranking(optimizedParameters)
+print("CFE:", x[0]*100)
+print("CEE:", x[1]*100)
+
 
 # -*- coding: utf-8 -*-
 """
@@ -400,6 +456,10 @@ def elimination(Env_D, Env_F):
 
 New_Env_D, New_Env_F = elimination(Env_D, Env_F)
 New_Env_D_N, New_Env_F_N = elimination(Env_D_N, Env_F_N)
+
+
+
+plt.plot(Disp, Force)
 
 # Plotting the force vs. displacement
 plt.figure(1)
